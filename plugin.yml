@@ -1,0 +1,12 @@
+name: MoneySLand
+main: money.MoneySLand
+
+load: POSTWORLD
+author: Him188
+version: "1.0.0"
+api: ["1.0.0"]
+
+depend:
+- Money
+
+description: "地皮"
