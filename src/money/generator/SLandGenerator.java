@@ -25,7 +25,6 @@ public class SLandGenerator extends Generator {
 
 	private ChunkManager level;
 
-	//区域大小
 	private int range;
 
 	//填充地下的方块
@@ -71,8 +70,8 @@ public class SLandGenerator extends Generator {
 		//   64 32 16
 		//4^  4  3  2
 		//limited range
-		this.size = Math.min(Math.max((int) Math.pow(4, 1 + Integer.parseInt(options.getOrDefault("size", 3).toString())), 64), 0);
-		this.range = 64 / size;
+		this.size = Math.max(Math.min((int) Math.pow(4, Integer.parseInt(options.getOrDefault("size", 1).toString())), 32), 0);
+		range = 32 / size;
 
 		this.fillBlock = getBlock(options, "fillBlock", DEFAULT_FILL_BLOCK);
 		this.lastBlock = getBlock(options, "lastBlock", DEFAULT_LAST_BLOCK);
@@ -87,11 +86,9 @@ public class SLandGenerator extends Generator {
 		this.frameBlockWidth = toInt(options.getOrDefault("frameBlockWidth", 2));
 		this.frameBlock = getBlock(options, "frameBlock", DEFAULT_FRAME_BLOCK);
 
-		this.groundWidth = this.range - this.frameBlockWidth * 2 - this.aisleBlockWidth * 2;
+		this.groundWidth = this.size - this.frameBlockWidth * 2 - this.aisleBlockWidth * 2;
 
-		this.broken = this.range - this.frameBlockWidth - this.aisleBlockWidth <= 0;
-
-		chunks = new HashMap<>();
+		this.broken = this.size - this.frameBlockWidth - this.aisleBlockWidth <= 0;
 
 		/*
 		PopulatorCaves caves = new PopulatorCaves();
@@ -140,23 +137,30 @@ public class SLandGenerator extends Generator {
 	}
 
 
-	private Map<Integer, Set<FullChunk>> chunks;
+	private List<Integer> generating = new ArrayList<>();
 
 	@Override
 	public void generateChunk(int chunkX, int chunkZ) {
 		FullChunk chunk = this.level.getChunk(chunkX, chunkZ);
 
-		if (broken) {
+		int id = (chunkX / 32) ^ (chunkZ / 32);
+
+		if (broken || generating.contains(id)) {
+			for (int i = 0; i < 16; i++) {
+				for (int i1 = 0; i1 < 16; i1++) {
+					for (int i2 = 0; i2 < 16; i2++) {
+						this.level.setBlockIdAt(i, i1, i2, 0);
+					}
+				}
+			}
 			return;
 		}
 
-		int xId = chunkX / 64 * 64;
-		int zId = chunkZ / 64 * 64;
-		// TODO: 2017/2/19 0019
-		int id = xId ^ zId;
+		generating.add(id);
 
-		Set<FullChunk> set = chunks.getOrDefault(id, new HashSet<>());
-		switch (chunkX % 32 + ":" + chunkZ % 32) {
+		//4小区块合成大区块
+		Set<FullChunk> set = new HashSet<>();
+		switch ((chunkX * 16) % 32 + ":" + (chunkZ * 16) % 32) {
 			case "0:0":
 				/*
 				- 过道, = 边框, * 地表
@@ -206,28 +210,34 @@ public class SLandGenerator extends Generator {
 				break;
 		}
 
-		if (set.size() == 4) {
-			generateChunk(chunks.remove(id));
-		} else {
-			chunks.put(id, set);
-		}
+		generateChunk(set);
 	}
 
-	private void generateChunk(Set<FullChunk> chunks){
+	private void generateChunk(Set<FullChunk> chunks) {
 		int generationRangeId = 0;
 
 		int x = 0;
 		int z = 0;
 		BigChunk chunk = new BigChunk(chunks);
+
 		while (generationRangeId++ < size) {
 			Block block = getBlock(x++, z++);
 			chunk.setBlock(block.getFloorX(), block.getFloorY(), block.getFloorZ(), block.getId(), block.getDamage());
 		}
 
-		x = z = 0;
-		for (int i = 0; i < 15; i++) {
-			chunk.setBlock(x++, 0, z, this.lastBlock.getId(), this.lastBlock.getDamage());
-		}
+		chunk.getChunks().forEach((ck) -> {
+			for (int z1 = 0; z1 < 15; z1++) {
+				for (int x1 = 0; x1 < 15; x1++) {
+					//设置基岩层(y=0)
+					ck.setBlock(x1, 0, z1, this.lastBlock.getId(), this.lastBlock.getDamage());
+
+					//填充地下
+					for (int height = 1; height < this.groundHeight - 1; height++) {
+						ck.setBlock(x1, height, z1, this.fillBlock.getId(), this.fillBlock.getDamage());
+					}
+				}
+			}
+		});
 	}
 
 	private boolean range(int val, int min, int max) {
@@ -263,26 +273,28 @@ public class SLandGenerator extends Generator {
 		 5 - - - - - - - - - - - - - - - -
 
 		*/
+		x %= range - 1; // TODO: 2/28/2017 检查是否需要-1
+		z %= range - 1;
 
 		int now = 0;
 
-		if (range(x, now, now += this.aisleBlockWidth)) {
+		if (range(x, now, now += this.aisleBlockWidth) && range(z, now, now += this.aisleBlockWidth)) {
 			return this.aisleBlock;
 		}
 
-		if (range(x, now, now += this.frameBlockWidth)) {
+		if (range(x, now, now += this.frameBlockWidth) && range(z, now, now += this.frameBlockWidth)) {
 			return this.frameBlock;
 		}
 
-		if (range(x, now, now += this.groundWidth)) {
+		if (range(x, now, now += this.groundWidth) && range(z, now, now += this.groundWidth)) {
 			return this.groundBlock;
 		}
 
-		if (range(x, now, now += this.frameBlockWidth)) {
+		if (range(x, now, now += this.frameBlockWidth) && range(z, now, now += this.frameBlockWidth)) {
 			return this.frameBlock;
 		}
 
-		if (range(x, now, this.aisleBlockWidth)) {
+		if (range(x, now, this.aisleBlockWidth) && range(z, now, this.aisleBlockWidth)) {
 			return this.aisleBlock;
 		}
 

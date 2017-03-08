@@ -18,7 +18,7 @@ public class BigChunk {
 
 	public boolean setBlock(int x, int y, int z, int id, int meta) {
 		for (FullChunk chunk : chunks) {
-			if (x >= chunk.getX() && x <= chunk.getX()+16 && z >= chunk.getZ() && z <= chunk.getZ()+16) {
+			if (x >= chunk.getX() && x <= chunk.getX()+15 && z >= chunk.getZ() && z <= chunk.getZ()+15) {
 				return chunk.setBlock(x, y, z, id, meta);
 			}
 		}

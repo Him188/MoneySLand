@@ -9,6 +9,7 @@ public class MoneySLand extends PluginBase {
 	public void onEnable() {
 		getDataFolder().mkdir();
 		reloadConfig();
+		Generator.addGenerator(SLandGenerator.class, "land", Generator.TYPE_INFINITE);
 		Generator.addGenerator(SLandGenerator.class, "sland", Generator.TYPE_INFINITE);
 		Generator.addGenerator(SLandGenerator.class, "地皮", Generator.TYPE_INFINITE);
 	}
