@@ -6,6 +6,8 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
+import money.MoneySLand;
+import money.range.BlockPlacer;
 
 import java.util.*;
 
@@ -14,7 +16,6 @@ public class SLandGenerator extends Generator {
 	private final Map<String, Object> options;
 
 	//private final List<Populator> populators = new ArrayList<>();
-	private int size;
 
 	private static final Block AIR = Block.get(Block.AIR);
 	private static final Block DEFAULT_FILL_BLOCK = Block.get(Block.DIRT);
@@ -23,39 +24,45 @@ public class SLandGenerator extends Generator {
 	private static final Block DEFAULT_FRAME_BLOCK = Block.get(Block.DOUBLE_STONE_SLAB);
 	private static final Block DEFAULT_GROUND_BLOCK = Block.get(Block.GRASS);
 
-	private ChunkManager level;
+	protected int totalWidth = 3 * 16;
 
-	private int range;
+	protected ChunkManager level;
+
+	protected int range;
 
 	//填充地下的方块
-	private Block fillBlock;
+	protected Block fillBlock;
 
 	//最底层方块
-	private Block lastBlock;
+	protected Block lastBlock;
 
 	//过道宽度
-	private int aisleBlockWidth;
+	protected BlockPlacer aisleBlockLeft;
+	//过道宽度
+	protected BlockPlacer aisleBlockRight;
 
 	//过道方块
-	private Block aisleBlock;
+	protected Block aisleBlock;
 
 	//每块地边框宽度
-	private int frameBlockWidth;
+	protected BlockPlacer frameBlockLeft;
+	//每块地边框宽度
+	protected BlockPlacer frameBlockRight;
 
 	//边框方块
-	private Block frameBlock;
+	protected Block frameBlock;
 
 	//地表方块
-	private Block groundBlock;
+	protected Block groundBlock;
 
 	//地表高度
-	private int groundHeight;
+	protected int groundHeight;
 
 	//地表宽度
-	private int groundWidth;
+	protected BlockPlacer groundWidth; //center
 
 	//边框和过道宽度是否大于总宽度
-	private boolean broken;
+	protected boolean broken;
 
 
 	@Override
@@ -70,25 +77,26 @@ public class SLandGenerator extends Generator {
 		//   64 32 16
 		//4^  4  3  2
 		//limited range
-		this.size = Math.max(Math.min((int) Math.pow(4, Integer.parseInt(options.getOrDefault("size", 1).toString())), 32), 0);
-		range = 32 / size;
+		this.totalWidth = Integer.parseInt(options.getOrDefault("totalWidth", 1).toString());
+		if (this.totalWidth % 16 != 0) {
+			MoneySLand.getInstance().getLogger().warning("总宽度配置有误, 总宽度必须为16的正整数倍!");
+		}
+
+		this.groundHeight = toInt(options.getOrDefault("groundHeight", 2));
 
 		this.fillBlock = getBlock(options, "fillBlock", DEFAULT_FILL_BLOCK);
 		this.lastBlock = getBlock(options, "lastBlock", DEFAULT_LAST_BLOCK);
-
-		this.groundBlock = getBlock(options, "groundBlock", DEFAULT_GROUND_BLOCK);
-		this.groundHeight = toInt(options.getOrDefault("groundHeight", 2));
-
-
-		this.aisleBlockWidth = toInt(options.getOrDefault("aisleBlockWidth", 2));
 		this.aisleBlock = getBlock(options, "aisleBlock", DEFAULT_AISLE_BLOCK);
-
-		this.frameBlockWidth = toInt(options.getOrDefault("frameBlockWidth", 2));
 		this.frameBlock = getBlock(options, "frameBlock", DEFAULT_FRAME_BLOCK);
+		this.groundBlock = getBlock(options, "groundBlock", DEFAULT_GROUND_BLOCK);
 
-		this.groundWidth = this.size - this.frameBlockWidth * 2 - this.aisleBlockWidth * 2;
+		this.aisleBlockLeft = new BlockPlacer(this.aisleBlock, 0, toInt(options.getOrDefault("aisleBlockWidth", 2)));
+		this.frameBlockLeft = new BlockPlacer(this.frameBlock, this.aisleBlockLeft.getMax(), this.aisleBlockLeft.getMax() + toInt(options.getOrDefault("frameBlockWidth", 2)));
+		this.groundWidth = new BlockPlacer(this.groundBlock, this.frameBlockLeft.getMax(), this.totalWidth - this.aisleBlockLeft.getLength() * 2 - this.frameBlockLeft.getLength() * 2);
+		this.frameBlockRight = new BlockPlacer(this.frameBlock, this.groundWidth.getMax(), this.groundWidth.getMax() + toInt(options.getOrDefault("frameBlockWidth", 2)));
+		this.aisleBlockRight = new BlockPlacer(this.aisleBlock, this.frameBlockRight.getMax(), this.frameBlockRight.getMax() + toInt(options.getOrDefault("aisleBlockWidth", 2)));
 
-		this.broken = this.size - this.frameBlockWidth - this.aisleBlockWidth <= 0;
+		this.broken = this.groundWidth.getLength() <= 0;
 
 		/*
 		PopulatorCaves caves = new PopulatorCaves();
@@ -136,174 +144,63 @@ public class SLandGenerator extends Generator {
 		this.options = options;
 	}
 
-
-	private List<Integer> generating = new ArrayList<>();
+	protected void generateBrokenChunk(FullChunk chunk) {
+		for (int i = 0; i < 16; i++) {
+			for (int i1 = 0; i1 < 16; i1++) {
+				for (int i2 = 0; i2 < 128; i2++) {
+					chunk.setBlockId(i, i1, i2, 0);
+				}
+			}
+		}
+	}
 
 	@Override
 	public void generateChunk(int chunkX, int chunkZ) {
 		FullChunk chunk = this.level.getChunk(chunkX, chunkZ);
-
-		int id = (chunkX / 32) ^ (chunkZ / 32);
-
-		if (broken || generating.contains(id)) {
-			for (int i = 0; i < 16; i++) {
-				for (int i1 = 0; i1 < 16; i1++) {
-					for (int i2 = 0; i2 < 16; i2++) {
-						this.level.setBlockIdAt(i, i1, i2, 0);
-					}
-				}
-			}
+		if (this.broken) {
+			generateBrokenChunk(chunk);
 			return;
 		}
 
-		generating.add(id);
+		int realChunkX = chunkX * 16;
+		int realChunkZ = chunkZ * 16;
 
-		//4小区块合成大区块
-		Set<FullChunk> set = new HashSet<>();
-		switch ((chunkX * 16) % 32 + ":" + (chunkZ * 16) % 32) {
-			case "0:0":
-				/*
-				- 过道, = 边框, * 地表
+		int x, z;
+		for (int _x = 0; _x < 16; _x++) { //16 不能用 totalWidth 替换, 因为 chunk 的大小只有 16
+			x = (_x + realChunkX) % totalWidth;
+			for (int _z = 0; _z < 16; _z++) {
+				z = (_z + realChunkZ) % totalWidth;
 
-				   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 ...
-				 0 - - - - - - - - - - - - - - - -
-				 1 - = = = = = = = = = = = = = = =
-				 2 - = * * * * * * * * * * * * * *
-				 3 - = * * * * * * * * * * * * * *
-				 4 - = * * * * * * * * * * * * * *
-				 5 - = * * * * * * * * * * * * * *
-				 6 - = * * * * * * * * * * * * * *
-				 7 - = * * * * * * * * * * * * * *
-				 8 - = * * * * * * * * * * * * * *
-				 9 - = * * * * * * * * * * * * * *
-				 0 - = * * * * * * * * * * * * * *
-				 1 - = * * * * * * * * * * * * * *
-				 2 - = * * * * * * * * * * * * * *
-				 3 - = * * * * * * * * * * * * * *
-				 4 - = * * * * * * * * * * * * * *
-				 5 - - * * * * * * * * * * * * * *
-				 ...
-				*/
-
-				set.add(chunk);
-				set.add(chunk.getProvider().getChunk(chunkX + 16, chunkZ + 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX, chunkZ + 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX + 16, chunkZ, true));
-				break;
-			case "0:1":
-				set.add(chunk);
-				set.add(chunk.getProvider().getChunk(chunkX + 16, chunkZ - 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX, chunkZ - 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX + 16, chunkZ, true));
-				break;
-			case "1:1":
-				set.add(chunk);
-				set.add(chunk.getProvider().getChunk(chunkX - 16, chunkZ - 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX, chunkZ + 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX - 16, chunkZ, true));
-				break;
-			case "1:0":
-				set.add(chunk);
-				set.add(chunk.getProvider().getChunk(chunkX - 16, chunkZ + 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX, chunkZ + 16, true));
-				set.add(chunk.getProvider().getChunk(chunkX - 16, chunkZ, true));
-				break;
-		}
-
-		generateChunk(set);
-	}
-
-	private void generateChunk(Set<FullChunk> chunks) {
-		int generationRangeId = 0;
-
-		int x = 0;
-		int z = 0;
-		BigChunk chunk = new BigChunk(chunks);
-
-		while (generationRangeId++ < size) {
-			Block block = getBlock(x++, z++);
-			chunk.setBlock(block.getFloorX(), block.getFloorY(), block.getFloorZ(), block.getId(), block.getDamage());
-		}
-
-		chunk.getChunks().forEach((ck) -> {
-			for (int z1 = 0; z1 < 15; z1++) {
-				for (int x1 = 0; x1 < 15; x1++) {
-					//设置基岩层(y=0)
-					ck.setBlock(x1, 0, z1, this.lastBlock.getId(), this.lastBlock.getDamage());
-
-					//填充地下
-					for (int height = 1; height < this.groundHeight - 1; height++) {
-						ck.setBlock(x1, height, z1, this.fillBlock.getId(), this.fillBlock.getDamage());
-					}
+				if (this.aisleBlockLeft.inRange(x) || this.aisleBlockLeft.inRange(z) ||
+						this.aisleBlockRight.inRange(x) || this.aisleBlockRight.inRange(z)) {
+					this.aisleBlockLeft.placeBlock(chunk, _x, this.groundHeight, _z);
+				} else if (this.frameBlockLeft.inRange(x) || this.frameBlockLeft.inRange(z) ||
+						this.frameBlockRight.inRange(x) || this.frameBlockRight.inRange(z)) {
+					this.frameBlockLeft.placeBlock(chunk, _x, this.groundHeight, _z);
+				} else {
+					this.groundWidth.placeBlock(chunk, _x, this.groundHeight, _z);
 				}
 			}
-		});
+		}
+
+		for (x = 0; x < 16; x++) {
+			for (z = 0; z < 16; z++) {
+				for (int y = 0; y < this.groundHeight - 1; y++) {
+					chunk.setBlockId(x, y, z, this.fillBlock.getId());
+					chunk.setBlockData(x, y, z, this.fillBlock.getDamage());
+				}
+
+				for (int y = this.groundHeight + 1; y < 128; y++) {
+					chunk.setBlockId(x, y, z, AIR.getId());
+					chunk.setBlockData(x, y, z, AIR.getDamage());
+				}
+			}
+		}
 	}
-
-	private boolean range(int val, int min, int max) {
-		return val >= min && val <= max;
-	}
-
-	private Block getBlock(int x, int z) {
-		Block block = getBlockNoPosition(x, z);
-		block.setComponents(x, this.groundHeight, z);
-		return block;
-	}
-
-	private Block getBlockNoPosition(int x, int z) {
-		/*
-		- 过道, = 边框, * 地表
-
-		   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-		 0 - - - - - - - - - - - - - - - -
-		 1 - = = = = = = = = = = = = = = -
-		 2 - = * * * * * * * * * * * * = -
-		 3 - = * * * * * * * * * * * * = -
-		 4 - = * * * * * * * * * * * * = -
-		 5 - = * * * * * * * * * * * * = -
-		 6 - = * * * * * * * * * * * * = -
-		 7 - = * * * * * * * * * * * * = -
-		 8 - = * * * * * * * * * * * * = -
-		 9 - = * * * * * * * * * * * * = -
-		 0 - = * * * * * * * * * * * * = -
-		 1 - = * * * * * * * * * * * * = -
-		 2 - = * * * * * * * * * * * * = -
-		 3 - = * * * * * * * * * * * * = -
-		 4 - = = = = = = = = = = = = = = -
-		 5 - - - - - - - - - - - - - - - -
-
-		*/
-		x %= range - 1; // TODO: 2/28/2017 检查是否需要-1
-		z %= range - 1;
-
-		int now = 0;
-
-		if (range(x, now, now += this.aisleBlockWidth) && range(z, now, now += this.aisleBlockWidth)) {
-			return this.aisleBlock;
-		}
-
-		if (range(x, now, now += this.frameBlockWidth) && range(z, now, now += this.frameBlockWidth)) {
-			return this.frameBlock;
-		}
-
-		if (range(x, now, now += this.groundWidth) && range(z, now, now += this.groundWidth)) {
-			return this.groundBlock;
-		}
-
-		if (range(x, now, now += this.frameBlockWidth) && range(z, now, now += this.frameBlockWidth)) {
-			return this.frameBlock;
-		}
-
-		if (range(x, now, this.aisleBlockWidth) && range(z, now, this.aisleBlockWidth)) {
-			return this.aisleBlock;
-		}
-
-		return AIR;
-	}
-
 
 	@Override
 	public void populateChunk(int chunkX, int chunkZ) {
+		// TODO: 2017/3/31  创建领地购买信息
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 name: MoneySLand
 main: money.MoneySLand
 
-load: STARTUP
+load: POSTWORLD
 author: Him188
 version: "1.0.0"
 api: ["1.0.0"]
@@ -10,3 +10,12 @@ depend:
 - Money
 
 description: "地皮"
+
+
+permissions:
+  # 允许服务器管理员直接修改地皮 (尽管他不是地皮的主人或邀请者)
+  # Allows op to modify the land through he wasn't invited from the land
+  money.sland.permission.modify:
+    default: op
+    description: "Allows op to modify the land through he wasn't invited from the land"
+
