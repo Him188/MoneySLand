@@ -2,7 +2,7 @@ package money.sland;
 
 import money.range.Range;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author Him188
  */
-public final class LandPool extends ArrayList<SLand> {
+public final class LandPool extends HashSet<SLand> {
 	public boolean addAndReload(SLand land, Map<String, Object> data) {
 		if (!super.add(land)) {
 			return false;
@@ -23,8 +23,8 @@ public final class LandPool extends ArrayList<SLand> {
 	public boolean add(Map<String, Object> data) {
 		Range x, z;
 		try {
-			x = Range.loadFromString(data.get("x").toString());
-			z = Range.loadFromString(data.get("z").toString());
+			x = Range.fromString(data.get("x").toString());
+			z = Range.fromString(data.get("z").toString());
 		} catch (NullPointerException e) {
 			return false;
 		}

@@ -2,6 +2,8 @@ package money.sland;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.level.Position;
+import money.MoneySLand;
 import money.event.SLandInviteeChangeEvent;
 import money.range.Range;
 
@@ -20,6 +22,7 @@ public final class SLand {
 	public final Range x;
 	public final Range z;
 
+	private String level;
 	private String owner;
 	private List<String> invitees;
 	private long time;
@@ -35,11 +38,13 @@ public final class SLand {
 	/**
 	 * Only be used when buying a land
 	 */
-	public SLand(Range x, Range z, String owner, List<String> invitees, long time) {
+	// TODO: 2017/3/31 购买后不构建地皮, 而是调用 reload 设置值
+	public SLand(Range x, Range z, String owner, List<String> invitees, long time, String level) {
 		this(x, z);
 		this.owner = owner;
 		this.invitees = invitees;
 		this.time = time;
+		this.level = level;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,11 +52,13 @@ public final class SLand {
 		this.owner = (String) data.get("owner");
 		this.invitees = (List<String>) data.getOrDefault("invitees", new ArrayList<>());
 		this.time = (long) data.getOrDefault("time", -1L);
+		this.level = (String) data.getOrDefault("level", "");
 	}
 
 	public Map<String, Object> save() {
-		return new HashMap<String, Object>(){
+		return new HashMap<String, Object>() {
 			{
+				put("level", level);
 				put("owner", owner);
 				put("invitees", invitees);
 				put("time", time);
@@ -59,6 +66,25 @@ public final class SLand {
 				put("z", z);
 			}
 		};
+	}
+
+	/**
+	 * Gets the level folder name
+	 *
+	 * @return the level folder name
+	 */
+	public String getLevel() {
+		return level;
+	}
+
+	/**
+	 * Returns if the {@code position} is included in ths land
+	 *
+	 * @param position position
+	 * @return if the {@code position} is included in ths land
+	 */
+	public boolean inRange(Position position){
+		return position.getLevel().getFolderName().equalsIgnoreCase(level) && x.inRange(position.getFloorX()) && z.inRange(position.getFloorZ());
 	}
 
 	/**
@@ -123,6 +149,7 @@ public final class SLand {
 		if (event.isCancelled()) {
 			return false;
 		}
+		MoneySLand.getInstance().getModifiedLandPool().add(this);
 		this.invitees.add(player);
 		return true;
 	}

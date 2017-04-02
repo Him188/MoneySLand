@@ -18,17 +18,19 @@ public class SLandGenerator extends Generator {
 	//private final List<Populator> populators = new ArrayList<>();
 
 	private static final Block AIR = Block.get(Block.AIR);
+
+	private static final int DEFAULT_AISLE_WIDTH = 2;
+	private static final int DEFAULT_FRAME_WIDTH = 1;
+
 	private static final Block DEFAULT_FILL_BLOCK = Block.get(Block.DIRT);
 	private static final Block DEFAULT_LAST_BLOCK = Block.get(Block.BEDROCK);
-	private static final Block DEFAULT_AISLE_BLOCK = Block.get(125, 2);
+	private static final Block DEFAULT_AISLE_BLOCK = Block.get(Block.PLANK, 2);
 	private static final Block DEFAULT_FRAME_BLOCK = Block.get(Block.DOUBLE_STONE_SLAB);
 	private static final Block DEFAULT_GROUND_BLOCK = Block.get(Block.GRASS);
 
-	protected int totalWidth = 3 * 16;
+	protected int totalWidth;
 
 	protected ChunkManager level;
-
-	protected int range;
 
 	//填充地下的方块
 	protected Block fillBlock;
@@ -77,12 +79,12 @@ public class SLandGenerator extends Generator {
 		//   64 32 16
 		//4^  4  3  2
 		//limited range
-		this.totalWidth = Integer.parseInt(options.getOrDefault("totalWidth", 1).toString());
+		this.totalWidth = Integer.parseInt(options.getOrDefault("totalWidth", 64).toString());
 		if (this.totalWidth % 16 != 0) {
 			MoneySLand.getInstance().getLogger().warning("总宽度配置有误, 总宽度必须为16的正整数倍!");
 		}
 
-		this.groundHeight = toInt(options.getOrDefault("groundHeight", 2));
+		this.groundHeight = toInt(options.getOrDefault("groundHeight", 48));
 
 		this.fillBlock = getBlock(options, "fillBlock", DEFAULT_FILL_BLOCK);
 		this.lastBlock = getBlock(options, "lastBlock", DEFAULT_LAST_BLOCK);
@@ -90,11 +92,28 @@ public class SLandGenerator extends Generator {
 		this.frameBlock = getBlock(options, "frameBlock", DEFAULT_FRAME_BLOCK);
 		this.groundBlock = getBlock(options, "groundBlock", DEFAULT_GROUND_BLOCK);
 
-		this.aisleBlockLeft = new BlockPlacer(this.aisleBlock, 0, toInt(options.getOrDefault("aisleBlockWidth", 2)));
-		this.frameBlockLeft = new BlockPlacer(this.frameBlock, this.aisleBlockLeft.getMax(), this.aisleBlockLeft.getMax() + toInt(options.getOrDefault("frameBlockWidth", 2)));
-		this.groundWidth = new BlockPlacer(this.groundBlock, this.frameBlockLeft.getMax(), this.totalWidth - this.aisleBlockLeft.getLength() * 2 - this.frameBlockLeft.getLength() * 2);
-		this.frameBlockRight = new BlockPlacer(this.frameBlock, this.groundWidth.getMax(), this.groundWidth.getMax() + toInt(options.getOrDefault("frameBlockWidth", 2)));
-		this.aisleBlockRight = new BlockPlacer(this.aisleBlock, this.frameBlockRight.getMax(), this.frameBlockRight.getMax() + toInt(options.getOrDefault("aisleBlockWidth", 2)));
+		this.aisleBlockLeft = new BlockPlacer(
+				this.aisleBlock,
+				0,
+				toInt(options.getOrDefault("aisleBlockWidth", DEFAULT_AISLE_WIDTH)));
+
+		this.frameBlockLeft = new BlockPlacer(
+				this.frameBlock,
+				this.aisleBlockLeft.getMax(),
+				this.aisleBlockLeft.getMax() + toInt(options.getOrDefault("frameBlockWidth", DEFAULT_FRAME_WIDTH)));
+
+		this.groundWidth = new BlockPlacer(
+				this.groundBlock,
+				this.frameBlockLeft.getMax(),
+				this.totalWidth - this.aisleBlockLeft.getLength() * 2 - this.frameBlockLeft.getLength() * 2);
+
+		this.frameBlockRight = new BlockPlacer(this.frameBlock,
+				this.groundWidth.getMax(),
+				this.groundWidth.getMax() + toInt(options.getOrDefault("frameBlockWidth", DEFAULT_FRAME_WIDTH)));
+
+		this.aisleBlockRight = new BlockPlacer(this.aisleBlock,
+				this.frameBlockRight.getMax(),
+				this.frameBlockRight.getMax() + toInt(options.getOrDefault("aisleBlockWidth", DEFAULT_AISLE_WIDTH)));
 
 		this.broken = this.groundWidth.getLength() <= 0;
 
@@ -129,7 +148,7 @@ public class SLandGenerator extends Generator {
 
 	private Block getBlock(Map<String, Object> map, String name, Block defaultBlock) {
 		try {
-			Block block = Block.get(toInt(map.getOrDefault(name + "Id", 0)), toInt(map.getOrDefault(name + "Damage", 0)));
+			Block block = Block.get(toInt(map.getOrDefault(name + "Id", defaultBlock.getId())), toInt(map.getOrDefault(name + "Damage", defaultBlock.getDamage())));
 			return block == null ? defaultBlock : block;
 		} catch (Exception e) {
 			return defaultBlock;
@@ -185,15 +204,15 @@ public class SLandGenerator extends Generator {
 
 		for (x = 0; x < 16; x++) {
 			for (z = 0; z < 16; z++) {
-				for (int y = 0; y < this.groundHeight - 1; y++) {
+				for (int y = 0; y < this.groundHeight ; y++) {
 					chunk.setBlockId(x, y, z, this.fillBlock.getId());
 					chunk.setBlockData(x, y, z, this.fillBlock.getDamage());
 				}
 
-				for (int y = this.groundHeight + 1; y < 128; y++) {
+				/*for (int y = this.groundHeight + 1; y < 128; y++) {
 					chunk.setBlockId(x, y, z, AIR.getId());
 					chunk.setBlockData(x, y, z, AIR.getDamage());
-				}
+				}*/
 			}
 		}
 	}

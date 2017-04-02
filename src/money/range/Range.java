@@ -23,7 +23,7 @@ public class Range {
 	}
 
 	public boolean inRange(int number) {
-		return number >= min && number < max;
+		return (number >= min && number < max) || (Math.abs(number) >= min && Math.abs(number) < max) ;
 	}
 
 	public int getLength() {
@@ -40,7 +40,7 @@ public class Range {
 		return min + "/" + max;
 	}
 
-	public static Range loadFromString(String string) {
+	public static Range fromString(String string) {
 		String[] strings = string.split("/");
 		if (strings.length != 2) {
 			return null;
