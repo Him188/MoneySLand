@@ -7,9 +7,13 @@ import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
 import money.MoneySLand;
+import money.block.SLandShopBlock;
 import money.range.BlockPlacer;
+import money.range.Range;
+import money.sland.SLand;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SLandGenerator extends Generator {
 	public static int TYPE_LAND = 1004;
@@ -28,9 +32,14 @@ public class SLandGenerator extends Generator {
 	private static final Block DEFAULT_FRAME_BLOCK = Block.get(Block.DOUBLE_STONE_SLAB);
 	private static final Block DEFAULT_GROUND_BLOCK = Block.get(Block.GRASS);
 
+	// TODO: 2017/4/2 支持自定义购买领地的方块
+	//private static final Block DEFAULT_SHOP_BLOCK = new SLandShopBlock();
+
 	protected int totalWidth;
 
 	protected ChunkManager level;
+
+	private Block shopBlock;
 
 	//填充地下的方块
 	protected Block fillBlock;
@@ -91,6 +100,7 @@ public class SLandGenerator extends Generator {
 		this.aisleBlock = getBlock(options, "aisleBlock", DEFAULT_AISLE_BLOCK);
 		this.frameBlock = getBlock(options, "frameBlock", DEFAULT_FRAME_BLOCK);
 		this.groundBlock = getBlock(options, "groundBlock", DEFAULT_GROUND_BLOCK);
+		this.shopBlock = new SLandShopBlock();
 
 		this.aisleBlockLeft = new BlockPlacer(
 				this.aisleBlock,
@@ -126,14 +136,14 @@ public class SLandGenerator extends Generator {
 
 		PopulatorOre ores = new PopulatorOre();
 		ores.setOreTypes(new OreType[]{
-				new OreType(new BlockOreCoal(), 20, 16, 0, 128),
+				new OreType(new BlockOreCoal(), 20, 16, 0, 256),
 				new OreType(new BlockOreIron(), 20, 8, 0, 64),
 				new OreType(new BlockOreRedstone(), 8, 7, 0, 16),
 				new OreType(new BlockOreLapis(), 1, 6, 0, 32),
 				new OreType(new BlockOreGold(), 2, 8, 0, 32),
 				new OreType(new BlockOreDiamond(), 1, 7, 0, 16),
-				new OreType(new BlockDirt(), 20, 32, 0, 128),
-				new OreType(new BlockGravel(), 10, 16, 0, 128)
+				new OreType(new BlockDirt(), 20, 32, 0, 256),
+				new OreType(new BlockGravel(), 10, 16, 0, 256)
 		});
 		this.populators.add(ores);*/
 	}
@@ -163,21 +173,10 @@ public class SLandGenerator extends Generator {
 		this.options = options;
 	}
 
-	protected void generateBrokenChunk(FullChunk chunk) {
-		for (int i = 0; i < 16; i++) {
-			for (int i1 = 0; i1 < 16; i1++) {
-				for (int i2 = 0; i2 < 128; i2++) {
-					chunk.setBlockId(i, i1, i2, 0);
-				}
-			}
-		}
-	}
-
 	@Override
 	public void generateChunk(int chunkX, int chunkZ) {
 		FullChunk chunk = this.level.getChunk(chunkX, chunkZ);
 		if (this.broken) {
-			generateBrokenChunk(chunk);
 			return;
 		}
 
@@ -204,22 +203,56 @@ public class SLandGenerator extends Generator {
 
 		for (x = 0; x < 16; x++) {
 			for (z = 0; z < 16; z++) {
-				for (int y = 0; y < this.groundHeight ; y++) {
+				for (int y = 0; y < this.groundHeight; y++) {
+					if (this.frameBlockLeft.inRange(x) || this.frameBlockLeft.inRange(z) ||
+							this.frameBlockRight.inRange(x) || this.frameBlockRight.inRange(z)) {
+
+						// TODO: 2017/4/2 边框设置
+
+						/*
+						for (int i = 0; i < 256; i++) {
+							chunk.setBlockId(x, i, z, Block.DIAMOND_BLOCK);
+						}
+
+						continue;
+						*/
+					}
+
 					chunk.setBlockId(x, y, z, this.fillBlock.getId());
 					chunk.setBlockData(x, y, z, this.fillBlock.getDamage());
 				}
-
-				/*for (int y = this.groundHeight + 1; y < 128; y++) {
-					chunk.setBlockId(x, y, z, AIR.getId());
-					chunk.setBlockData(x, y, z, AIR.getDamage());
-				}*/
 			}
 		}
 	}
 
 	@Override
 	public void populateChunk(int chunkX, int chunkZ) {
-		// TODO: 2017/3/31  创建领地购买信息
+		FullChunk chunk = this.level.getChunk(chunkX, chunkZ);
+		if (this.broken) {
+			return;
+		}
+
+		int realChunkX = chunkX * 16;
+		int realChunkZ = chunkZ * 16;
+
+		int baseX = realChunkX % totalWidth;
+		int baseZ = realChunkZ % totalWidth;
+
+		SLand land = new SLand(
+				new Range(
+						baseX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength(),
+						baseX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() +
+								this.frameBlockRight.getLength() + this.aisleBlockRight.getLength()
+				),
+				new Range(
+						baseZ + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength(),
+						baseZ + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() +
+								this.frameBlockRight.getLength() + this.aisleBlockRight.getLength()
+				));
+
+		MoneySLand.getInstance().getLandPool().add(land);
+		// TODO: 2017/4/2 支持自定义购买领地的方块
+		chunk.setBlockId(this.aisleBlockLeft.getLength() + 1, 2, this.aisleBlockLeft.getLength() + 1, this.shopBlock.getId());
 	}
 
 	@Override

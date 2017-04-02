@@ -27,7 +27,7 @@ public class Range {
 	}
 
 	public int getLength() {
-		return max - min;
+		return max - min +1;
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package money.sland;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.Vector3;
 import money.MoneySLand;
 import money.event.SLandInviteeChangeEvent;
 import money.range.Range;
@@ -11,9 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-// TODO: 2017/3/31 有数据修改的领地列表转储到 LandPool
 
 /**
  * @author Him188
@@ -27,6 +25,9 @@ public final class SLand {
 	private List<String> invitees;
 	private long time;
 
+
+	private Vector3 shopBlock;
+
 	/**
 	 * Be used when reloading land from disk
 	 */
@@ -39,6 +40,7 @@ public final class SLand {
 	 * Only be used when buying a land
 	 */
 	// TODO: 2017/3/31 购买后不构建地皮, 而是调用 reload 设置值
+	@Deprecated
 	public SLand(Range x, Range z, String owner, List<String> invitees, long time, String level) {
 		this(x, z);
 		this.owner = owner;
@@ -53,6 +55,10 @@ public final class SLand {
 		this.invitees = (List<String>) data.getOrDefault("invitees", new ArrayList<>());
 		this.time = (long) data.getOrDefault("time", -1L);
 		this.level = (String) data.getOrDefault("level", "");
+
+
+		// TODO: 2017/4/2 shopBlock的保存和读取
+		//this.shopBlock =
 	}
 
 	public Map<String, Object> save() {
