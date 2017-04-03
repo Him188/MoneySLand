@@ -8,7 +8,7 @@ import cn.nukkit.level.format.FullChunk;
  *
  * @author Him188
  */
-public final class BlockPlacer extends Range {
+public class BlockPlacer extends Range {
 	public final Block block;
 
 	public BlockPlacer(Block block, int min, int max) {

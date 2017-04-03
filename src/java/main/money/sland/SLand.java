@@ -26,7 +26,25 @@ public final class SLand {
 	private long time;
 
 
+	private boolean free;
+
+	public void setFree(boolean free) {
+		this.free = free;
+	}
+
+	public boolean isFree() {
+		return free;
+	}
+
 	private Vector3 shopBlock;
+
+	public Vector3 getShopBlock() {
+		return shopBlock.clone();
+	}
+
+	public void setShopBlock(Vector3 shopBlock) {
+		this.shopBlock = new Vector3(shopBlock.x, shopBlock.y, shopBlock.z);
+	}
 
 	/**
 	 * Be used when reloading land from disk
@@ -87,9 +105,10 @@ public final class SLand {
 	 * Returns if the {@code position} is included in ths land
 	 *
 	 * @param position position
+	 *
 	 * @return if the {@code position} is included in ths land
 	 */
-	public boolean inRange(Position position){
+	public boolean inRange(Position position) {
 		return position.getLevel().getFolderName().equalsIgnoreCase(level) && x.inRange(position.getFloorX()) && z.inRange(position.getFloorZ());
 	}
 
@@ -127,6 +146,18 @@ public final class SLand {
 	 */
 	public String getOwner() {
 		return owner;
+	}
+
+	public boolean setOwner(String owner) {
+		if (this.isOwned()) {
+			return false;
+		}
+		this.owner = owner;
+		return true;
+	}
+
+	public boolean isOwned() {
+		return getOwner() == null || !getOwner().equals("");
 	}
 
 	/**
@@ -200,6 +231,6 @@ public final class SLand {
 	 * @return if the {@code player} can modify this land
 	 */
 	public boolean testPermission(Player player) {
-		return getOwner().equalsIgnoreCase(player.getName()) || this.isInvited(player.getName()) || player.hasPermission("money.sland.permission.modify");
+		return !isFree() && getOwner().equalsIgnoreCase(player.getName()) || this.isInvited(player.getName()) || player.hasPermission("money.sland.permission.modify");
 	}
 }

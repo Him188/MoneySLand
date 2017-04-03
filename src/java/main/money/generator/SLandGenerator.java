@@ -8,6 +8,7 @@ import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
 import money.MoneySLand;
 import money.block.SLandShopBlock;
+import money.range.AisleBlockPlacer;
 import money.range.BlockPlacer;
 import money.range.Range;
 import money.sland.SLand;
@@ -100,9 +101,14 @@ public class SLandGenerator extends Generator {
 		this.aisleBlock = getBlock(options, "aisleBlock", DEFAULT_AISLE_BLOCK);
 		this.frameBlock = getBlock(options, "frameBlock", DEFAULT_FRAME_BLOCK);
 		this.groundBlock = getBlock(options, "groundBlock", DEFAULT_GROUND_BLOCK);
-		this.shopBlock = new SLandShopBlock();
+		try {
+			this.shopBlock = new SLandShopBlock();
+		} catch (Exception e) {
+			MoneySLand.getInstance().getLogger().warning("创建地皮购买方块出错!!");
+			this.shopBlock = null;
+		}
 
-		this.aisleBlockLeft = new BlockPlacer(
+		this.aisleBlockLeft = new AisleBlockPlacer(
 				this.aisleBlock,
 				0,
 				toInt(options.getOrDefault("aisleBlockWidth", DEFAULT_AISLE_WIDTH)));
@@ -204,6 +210,7 @@ public class SLandGenerator extends Generator {
 		for (x = 0; x < 16; x++) {
 			for (z = 0; z < 16; z++) {
 				for (int y = 0; y < this.groundHeight; y++) {
+					//noinspection StatementWithEmptyBody
 					if (this.frameBlockLeft.inRange(x) || this.frameBlockLeft.inRange(z) ||
 							this.frameBlockRight.inRange(x) || this.frameBlockRight.inRange(z)) {
 
@@ -238,21 +245,22 @@ public class SLandGenerator extends Generator {
 		int baseX = realChunkX % totalWidth;
 		int baseZ = realChunkZ % totalWidth;
 
-		SLand land = new SLand(
-				new Range(
-						baseX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength(),
-						baseX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() +
-								this.frameBlockRight.getLength() + this.aisleBlockRight.getLength()
-				),
-				new Range(
-						baseZ + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength(),
-						baseZ + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() +
-								this.frameBlockRight.getLength() + this.aisleBlockRight.getLength()
-				));
-
-		MoneySLand.getInstance().getLandPool().add(land);
-		// TODO: 2017/4/2 支持自定义购买领地的方块
-		chunk.setBlockId(this.aisleBlockLeft.getLength() + 1, 2, this.aisleBlockLeft.getLength() + 1, this.shopBlock.getId());
+		if (this.aisleBlockLeft.inRange(baseX + 1)) {
+			SLand land = new SLand(
+					new Range(
+							baseX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength(),
+							baseX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() +
+									this.frameBlockRight.getLength() + this.aisleBlockRight.getLength()
+					),
+					new Range(
+							baseZ + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength(),
+							baseZ + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() +
+									this.frameBlockRight.getLength() + this.aisleBlockRight.getLength()
+					));
+			land.setShopBlock(new Vector3(realChunkX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() - 1, this.groundHeight + 1, realChunkX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength() - 1));
+			MoneySLand.getInstance().getLandPool().add(land);
+			chunk.setBlockId(this.aisleBlockLeft.getLength() + 1, 2, this.aisleBlockLeft.getLength() + 1, this.shopBlock.getId());
+		}
 	}
 
 	@Override
