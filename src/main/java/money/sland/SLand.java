@@ -54,19 +54,6 @@ public final class SLand {
 		this.z = z;
 	}
 
-	/**
-	 * Only be used when buying a land
-	 */
-	// TODO: 2017/3/31 购买后不构建地皮, 而是调用 reload 设置值
-	@Deprecated
-	public SLand(Range x, Range z, String owner, List<String> invitees, long time, String level) {
-		this(x, z);
-		this.owner = owner;
-		this.invitees = invitees;
-		this.time = time;
-		this.level = level;
-	}
-
 	@SuppressWarnings("unchecked")
 	public void reload(Map<String, Object> data) {
 		this.owner = (String) data.get("owner");

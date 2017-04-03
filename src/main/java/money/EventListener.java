@@ -96,6 +96,6 @@ public final class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
 	public void onBreak(BlockBreakEvent event) {
-
+		event.getPlayer().hasPermission("")
 	}
 }
