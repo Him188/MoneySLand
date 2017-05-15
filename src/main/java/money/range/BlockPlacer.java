@@ -6,7 +6,8 @@ import cn.nukkit.level.format.FullChunk;
 /**
  * Block placer
  *
- * @author Him188
+ * @author Him188 @ MoneySLand Project
+ * @since MoneySLand 1.0.0
  */
 public class BlockPlacer extends Range {
 	public final Block block;

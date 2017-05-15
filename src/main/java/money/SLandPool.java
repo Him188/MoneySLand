@@ -1,5 +1,6 @@
-package money.sland;
+package money;
 
+import cn.nukkit.utils.ConfigSection;
 import money.range.Range;
 
 import java.util.HashSet;
@@ -8,10 +9,11 @@ import java.util.Map;
 /**
  * Land list
  *
- * @author Him188
+ * @author Him188 @ MoneySLand Project
+ * @since MoneySLand 1.0.0
  */
-public final class LandPool extends HashSet<SLand> {
-	public boolean addAndReload(SLand land, Map<String, Object> data) {
+public final class SLandPool extends HashSet<SLand> {
+	public boolean addAndReload(SLand land, ConfigSection data) {
 		if (!super.add(land)) {
 			return false;
 		}
@@ -20,7 +22,7 @@ public final class LandPool extends HashSet<SLand> {
 		return true;
 	}
 
-	public boolean add(Map<String, Object> data) {
+	public boolean add(ConfigSection data) {
 		Range x, z;
 		try {
 			x = Range.fromString(data.get("x").toString());

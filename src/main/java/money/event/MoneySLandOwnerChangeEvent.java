@@ -2,12 +2,13 @@ package money.event;
 
 import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.HandlerList;
-import money.sland.SLand;
+import money.SLand;
 
 /**
- * @author Him188
+ * @author Him188 @ MoneySLand Project
+ * @since MoneySLand 1.0.0
  */
-public class SLandOwnerChangeEvent extends SLandEvent implements Cancellable {
+public class MoneySLandOwnerChangeEvent extends MoneySLandEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 
 	public static HandlerList getHandlers() {
@@ -15,25 +16,19 @@ public class SLandOwnerChangeEvent extends SLandEvent implements Cancellable {
 	}
 
 
-	private SLand land;
+	private final int cause;
+	private final String originalOwner;
 
-	public final String originalOwner;
-	public String newOwner;
+	private String newOwner;
 
 	public static final int CAUSE_BUY = 1;
 	public static final int CAUSE_TRANSFER = 2;
 	public static final int CAUSE_PLUGIN = 3; // for other plugins
 	public static final int CAUSE_FREE = 4; //newOwner = null
 
-	public final int cause;
 
-
-	public SLand getLand() {
-		return land;
-	}
-
-	public SLandOwnerChangeEvent(SLand land, String originalOwner, String newOwner, int cause) {
-		this.land = land;
+	public MoneySLandOwnerChangeEvent(SLand land, String originalOwner, String newOwner, int cause) {
+		super(land);
 		this.originalOwner = originalOwner;
 		this.newOwner = newOwner;
 		this.cause = cause;

@@ -3,7 +3,8 @@ package money.range;
 /**
  * Base range
  *
- * @author Him188
+ * @author Him188 @ MoneySLand Project
+ * @since MoneySLand 1.0.0
  */
 public class Range {
 	public final int min;
@@ -27,7 +28,7 @@ public class Range {
 	}
 
 	public int getLength() {
-		return max - min +1;
+		return max - min ;
 	}
 
 	@Override

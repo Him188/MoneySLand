@@ -3,7 +3,8 @@ package money.utils;
 import cn.nukkit.math.Vector3;
 
 /**
- * @author Him188
+ * @author Him188 @ MoneySLand Project
+ * @since MoneySLand 1.0.0
  */
 public class Utils {
 

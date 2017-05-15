@@ -1,7 +1,7 @@
 name: MoneySLand
 main: money.MoneySLand
 
-load: POSTWORLD
+load: STARTUP
 author: Him188
 version: "1.0.0"
 api: ["1.0.0"]
@@ -13,20 +13,36 @@ description: "地皮"
 
 
 permissions:
-  # 允许服务器管理员直接修改地皮 (尽管他不是地皮的主人或邀请者)
-  # Allows op to modify the land through he wasn't invited from the land
-  money.sland.permission.modify:
+  money.permission.sland.modify:
+    child:
+      # 允许服务器管理员在地皮上放置方块 (尽管他不是地皮的主人或邀请者)
+      # Allows op to place blocks on the land through he wasn't invited from the land
+      money.permission.sland.modify.place:
+        default: op
+        description: "Allows op to place blocks on the land through he wasn't invited from the land"
+
+      # 允许服务器管理员在地皮上拆除方块 (尽管他不是地皮的主人或邀请者)
+      # Allows op to break blocks on the land through he wasn't invited from the land
+      money.permission.sland.modify.break:
+        default: op
+        description: "Allows op to break blocks on the land through he wasn't invited from the land"
+
+      # 允许服务器管理在地皮上点击方块 (尽管他不是地皮的主人或邀请者)
+      # Allows op to touch blocks on the land through he wasn't invited from the land
+      money.permission.sland.modify.interact:
+        default: op
+        description: "Allows op to touch blocks on the land through he wasn't invited from the land"
     default: op
     description: "Allows op to modify the land though he wasn't invited from the land"
 
   # 允许所有玩家购买地皮
   # Allows everyone to buy the land
-  money.sland.permission.buy:
+  money.permission.sland.buy:
     default: true
     description: "Allows everyone to buy the land"
 
   # 允许服务器管理员使用木棒使地皮变为公益地皮 (任何玩家都可以直接修改地皮)
   # Allows op to make the land public (Everyone can modify the land)
-  money.sland.permission.free:
+  money.permission.sland.free:
      default: op
      description: "Allows op to make the land public (Everyone can modify the land)"

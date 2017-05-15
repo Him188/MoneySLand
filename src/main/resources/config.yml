@@ -1,0 +1,9 @@
+# MoneySLand config
+# 地皮配置文件
+
+# 每平方格的价格
+# Price per square block
+pricePerSquare: 100
+
+# TODO
+save-tiks: 1200
