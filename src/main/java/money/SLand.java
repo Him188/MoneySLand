@@ -9,10 +9,7 @@ import money.event.MoneySLandInviteeChangeEvent;
 import money.range.Range;
 import money.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Him188 @ MoneySLand Project
@@ -57,7 +54,7 @@ public final class SLand {
     public void reload(Map<String, Object> data) {
         this.owner = (String) data.get("owner");
         this.invitees = (List<String>) data.getOrDefault("invitees", new ArrayList<>());
-        this.time = (long) data.getOrDefault("time", System.currentTimeMillis());
+        this.time = (long) data.getOrDefault("time", System.currentTimeMillis() + new Random().nextInt());
         this.free = (boolean) data.getOrDefault("free", false);
         this.level = (String) data.getOrDefault("level", "");
         this.shopBlock = Utils.parseVector3((String) data.getOrDefault("shopBlock", "vector3(x=0, y=0, z=0)"));

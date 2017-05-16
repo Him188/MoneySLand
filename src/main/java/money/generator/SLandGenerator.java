@@ -219,7 +219,7 @@ public class SLandGenerator extends Generator {
 
         int id = (realChunkX % totalWidth) >> 4 | (realChunkZ % totalWidth);
 
-        int x, z, y;
+        int x, z, y; // TODO: 2017/5/16 主动放置方块而不是被动判断范围
         for (int _x = 0; _x < 16; _x++) { //16 不能用 totalWidth 替换, 因为 chunk 的大小只有 16
             x = (_x + realChunkX) % totalWidth;
             for (int _z = 0; _z < 16; _z++) {
@@ -236,12 +236,12 @@ public class SLandGenerator extends Generator {
                             //领地方块
                             chunk.setBlock(_x, this.groundHeight + 2, _z, Block.NETHERRACK);
 
-                            int minX, minZ;
+                            int temp;
                             SLand land = new SLand(
-                                    new Range(minX = 1 + realChunkX + _x,
-                                            minX + this.groundWidth.getLength()),
-                                    new Range(minZ = 1 + realChunkZ + _z,
-                                            minZ + this.groundWidth.getLength())
+                                    new Range(temp = 1 + realChunkX + _x,
+                                            temp + this.groundWidth.getLength()),
+                                    new Range(temp = 1 + realChunkZ + _z,
+                                            temp + this.groundWidth.getLength())
                             );
                             land.reload(new HashMap<>()); //save default data
                             land.setShopBlock(new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ));

@@ -8,6 +8,7 @@ import cn.nukkit.level.generator.Generator;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.TaskHandler;
 import cn.nukkit.utils.*;
+import money.command.GenerateLandCommand;
 import money.event.MoneySLandBuyEvent;
 import money.event.MoneySLandOwnerChangeEvent;
 import money.event.MoneySLandPriceCalculateEvent;
@@ -23,24 +24,27 @@ import java.util.*;
  */
 public final class MoneySLand extends PluginBase implements MoneySLandAPI {
     private static MoneySLand instance;
-    private SLandPool lands;
-
-    private SLandPool modifiedLands;
-
-    private int id;
-
-    private ConfigSection language;
 
     {
         instance = this;
     }
 
-    private TaskHandler savingTask;
-
-
     public static MoneySLand getInstance() {
         return instance;
     }
+
+
+    private SLandPool lands;
+    private SLandPool modifiedLands;
+    private Config landConfig;
+
+    private int id;
+
+    private ConfigSection language;
+    private SLandEventListener eventListener;
+
+    private TaskHandler savingTask;
+
 
     @Override
     public void onLoad() {
@@ -58,23 +62,64 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
         lands = new SLandPool();
         modifiedLands = new SLandPool();
 
-        reloadConfig();
-        getConfig().getSections().values().forEach((o) -> lands.add((ConfigSection) o));
+        landConfig = new Config(getDataFolder() + File.separator + "lands.dat", Config.YAML);
+        landConfig.getSections().values().forEach((o) -> lands.add((ConfigSection) o));
 
-        getServer().getPluginManager().registerEvents(new SLandEventListener(this), this);
+        initConfigSettings();
+
+        String command = getConfig().getString("generator-command", null);
+        if (command != null && !command.isEmpty()) { //for disable command
+            Server.getInstance().getCommandMap().register(command, new GenerateLandCommand(command, this));
+        }
+
+        if (eventListener == null) { //for reload
+            eventListener = new SLandEventListener(this);
+            getServer().getPluginManager().registerEvents(eventListener, this);
+        }
+
         savingTask = Server.getInstance().getScheduler().scheduleRepeatingTask(this, this::save, 20 * 60);
 
+        initLanguageSettings("chs");
+    }
 
+    private void initConfigSettings() {
+        saveDefaultConfig();
+        reloadConfig();
 
-        saveResource("language/chs.properties", "language.properties", false);
+        try {
+            String file = cn.nukkit.utils.Utils.readFile(getResource("config.yml"));
+            int size = getConfig().getAll().size();
+            new Config(Config.YAML) {
+                {
+                    load(file);
+                }
+            }.getAll().forEach((key, value) -> {
+                if (!getConfig().exists(key)) {
+                    getConfig().set(key, value);
+                }
+            });
+            if (getConfig().getAll().size() != size) {
+                getConfig().save();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        Config config = new Config(getDataFolder() + File.separator + "language.properties");
+    private void initLanguageSettings(String language) {
+        saveResource("language/" + language + ".properties", "language.properties", false);
+
+        Config config = new Config(getDataFolder() + File.separator + "language.properties", Config.PROPERTIES);
         this.language = config.getRootSection();
 
         try {
-            String file = cn.nukkit.utils.Utils.readFile(getResource("language/chs.properties"));
+            String file = cn.nukkit.utils.Utils.readFile(getResource("language/" + language + ".properties"));
             int size = this.language.size();
-            new Config(file, Config.PROPERTIES).getAll().forEach((key, value) -> {
+            new Config(Config.PROPERTIES) {
+                {
+                    load(file);
+                }
+            }.getAll().forEach((key, value) -> {
                 if (!this.language.containsKey(key)) {
                     this.language.set(key, value);
                 }
@@ -91,7 +136,8 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
     private void save() {
         for (SLand land : modifiedLands) {
-            getConfig().set(String.valueOf(land.getTime()), land.save());
+            landConfig.set(String.valueOf(land.getTime()), land.save());
+            landConfig.save();
         }
         modifiedLands.clear();
     }

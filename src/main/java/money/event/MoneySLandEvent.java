@@ -17,4 +17,3 @@ public abstract class MoneySLandEvent extends MoneyPluginEvent {
         this.land = land;
     }
 }
-// TODO: 2017/5/15 完成事件

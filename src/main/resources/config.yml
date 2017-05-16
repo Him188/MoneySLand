@@ -10,3 +10,7 @@ pricePerSquare: 100
 # Period for data saving
 # Unit is ticks (1s = 20ticks)
 save-tiks: 1200
+
+# 生成地皮的指令
+# Command for generating level
+generator-command: newland
