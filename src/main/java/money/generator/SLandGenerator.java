@@ -115,7 +115,7 @@ public class SLandGenerator extends Generator {
         this.aisleBlock = getBlock(options, "aisleBlock", DEFAULT_AISLE_BLOCK);
         this.frameBlock = getBlock(options, "frameBlock", DEFAULT_FRAME_BLOCK);
         this.groundBlock = getBlock(options, "groundBlock", DEFAULT_GROUND_BLOCK);
-        this.topBlock = getBlock(options, "frametopBlock", DEFAULT_FRAME_TOP_BLOCK);
+        this.topBlock = getBlock(options, "frameTopBlock", DEFAULT_FRAME_TOP_BLOCK);
 
         this.aisleBlockLeft = new BlockPlacer(
                 this.aisleBlock,
@@ -130,7 +130,7 @@ public class SLandGenerator extends Generator {
         this.frameTopBlock = new BlockPlacer(
                 this.topBlock,
                 0,
-                toInt(options.getOrDefault("frametopBlock", DEFAULT_FRAME_TOP_BLOCK)));
+                toInt(options.getOrDefault("frameTopBlock", DEFAULT_FRAME_TOP_BLOCK)));
         this.frameBlockLeft = new FrameBlockPlacer(
                 this.frameBlock,
                 this.aisleBlockLeft.getMax(),

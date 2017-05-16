@@ -5,5 +5,8 @@
 # Price per square block
 pricePerSquare: 100
 
-# TODO
+# 保存数据的频率
+# 单位 ticks (1s = 20ticks)
+# Period for data saving
+# Unit is ticks (1s = 20ticks)
 save-tiks: 1200

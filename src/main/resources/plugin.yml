@@ -14,6 +14,8 @@ description: "地皮"
 
 permissions:
   money.permission.sland.modify:
+    default: op
+    description: "Allows op to modify the land though he wasn't invited from the land"
     child:
       # 允许服务器管理员在地皮上放置方块 (尽管他不是地皮的主人或邀请者)
       # Allows op to place blocks on the land through he wasn't invited from the land
@@ -32,17 +34,18 @@ permissions:
       money.permission.sland.modify.interact:
         default: op
         description: "Allows op to touch blocks on the land through he wasn't invited from the land"
-    default: op
-    description: "Allows op to modify the land though he wasn't invited from the land"
-
   # 允许所有玩家购买地皮
   # Allows everyone to buy the land
   money.permission.sland.buy:
     default: true
     description: "Allows everyone to buy the land"
-
   # 允许服务器管理员使用木棒使地皮变为公益地皮 (任何玩家都可以直接修改地皮)
   # Allows op to make the land public (Everyone can modify the land)
   money.permission.sland.free:
-     default: op
-     description: "Allows op to make the land public (Everyone can modify the land)"
+    default: op
+    description: "Allows op to make the land public (Everyone can modify the land)"
+  # 允许服务器管理员创建地皮地图
+  # Allows op to run generate land command
+  money.command.generateland:
+    default: op
+    description: "Allows op to run generate land command"

@@ -6,12 +6,15 @@ import cn.nukkit.block.Block;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.ConfigSection;
-import cn.nukkit.utils.TextFormat;
+import cn.nukkit.scheduler.TaskHandler;
+import cn.nukkit.utils.*;
 import money.event.MoneySLandBuyEvent;
 import money.event.MoneySLandOwnerChangeEvent;
+import money.event.MoneySLandPriceCalculateEvent;
 import money.generator.SLandGenerator;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -28,18 +31,19 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
     private ConfigSection language;
 
-    public static MoneySLand getInstance() {
-        return instance;
-    }
-
     {
         instance = this;
     }
 
+    private TaskHandler savingTask;
+
+
+    public static MoneySLand getInstance() {
+        return instance;
+    }
+
     @Override
     public void onLoad() {
-        calculators = new HashSet<>();
-
         //当地形生成器已注册时, 方法返回 false. 因此无需考虑 reload
         Generator.addGenerator(SLandGenerator.class, "land", Generator.TYPE_INFINITE);
         Generator.addGenerator(SLandGenerator.class, "sland", Generator.TYPE_INFINITE);
@@ -50,17 +54,39 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
     @Override
     public void onEnable() {
         getDataFolder().mkdir();
-        reloadConfig();
-        calculators.clear();
 
         lands = new SLandPool();
         modifiedLands = new SLandPool();
 
+        reloadConfig();
         getConfig().getSections().values().forEach((o) -> lands.add((ConfigSection) o));
 
         getServer().getPluginManager().registerEvents(new SLandEventListener(this), this);
+        savingTask = Server.getInstance().getScheduler().scheduleRepeatingTask(this, this::save, 20 * 60);
 
-        Server.getInstance().getScheduler().scheduleRepeatingTask(this, this::save, 20 * 60);
+
+
+        saveResource("language/chs.properties", "language.properties", false);
+
+        Config config = new Config(getDataFolder() + File.separator + "language.properties");
+        this.language = config.getRootSection();
+
+        try {
+            String file = cn.nukkit.utils.Utils.readFile(getResource("language/chs.properties"));
+            int size = this.language.size();
+            new Config(file, Config.PROPERTIES).getAll().forEach((key, value) -> {
+                if (!this.language.containsKey(key)) {
+                    this.language.set(key, value);
+                }
+            });
+            if (this.language.size() != size) {
+                config.setAll(this.language);
+                config.save();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void save() {
@@ -73,6 +99,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
     @Override
     public void onDisable() {
         save();
+        savingTask.cancel();
     }
 
     public String translateMessage(String message) {
@@ -186,20 +213,11 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
     }
 
 
-    private Set<PriceCalculator> calculators;
-
-    /**
-     * Adds calculator which can change the price of one land
-     */
-    public void addPriceCalculator(PriceCalculator calculator) {
-        calculators.add(calculator);
-    }
-
     public float calculatePrice(Player player, SLand land) {
         float price = (float) (this.getConfig().getDouble("pricePerSquare", 0) * land.getX().getLength() * land.getZ().getLength());
-        for (PriceCalculator calculator : calculators) {
-            price = calculator.calculate(price, player, land);
-        }
-        return price;
+
+        MoneySLandPriceCalculateEvent event = new MoneySLandPriceCalculateEvent(land, player, price);
+        Server.getInstance().getPluginManager().callEvent(event);
+        return event.getPrice();
     }
 }

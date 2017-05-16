@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.utils.ConfigSection;
 import money.event.MoneySLandInviteeChangeEvent;
 import money.range.Range;
 import money.utils.Utils;
@@ -62,8 +63,8 @@ public final class SLand {
         this.shopBlock = Utils.parseVector3((String) data.getOrDefault("shopBlock", "vector3(x=0, y=0, z=0)"));
     }
 
-    public Map<String, Object> save() {
-        return new HashMap<String, Object>() {
+    public ConfigSection save() {
+        return new ConfigSection() {
             {
                 put("level", level);
                 put("owner", owner);
