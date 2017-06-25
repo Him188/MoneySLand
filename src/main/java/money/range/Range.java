@@ -24,16 +24,16 @@ public class Range {
 	}
 
 	public boolean inRange(int number) {
-		return (number >= min && number < max) || (Math.abs(number) >= min && Math.abs(number) < max) ;
+		return (number >= min && number < max) || (Math.abs(number) >= min && Math.abs(number) < max);
 	}
 
 	public int getLength() {
-		return max - min ;
+		return max - min;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof Range && ((Range) obj).getMin() == this.getMin() && ((Range) obj).getMax() == this.getMax();
+		return obj == this || (obj instanceof Range && ((Range) obj).getMin() == this.getMin() && ((Range) obj).getMax() == this.getMax());
 	}
 
 	@Override

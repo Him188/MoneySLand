@@ -1,6 +1,7 @@
 package money.event;
 
 import cn.nukkit.Player;
+import cn.nukkit.event.HandlerList;
 import money.SLand;
 
 /**
@@ -8,6 +9,13 @@ import money.SLand;
  * @since MoneySLand 1.0.0
  */
 public class MoneySLandPriceCalculateEvent extends MoneySLandEvent {
+    private static final HandlerList handlers = new HandlerList();
+
+    public static HandlerList getHandlers() {
+        return handlers;
+    }
+
+
     private final Player buyer;
     private final float originalPrice;
     private float price;

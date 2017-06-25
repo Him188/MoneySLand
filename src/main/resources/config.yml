@@ -1,6 +1,10 @@
 # MoneySLand config
 # 地皮配置文件
 
+# 语言类型, 请勿随意改动
+# Language type, DO NOT modify if unnecessary
+language: "chs"
+
 # 每平方格的价格
 # Price per square block
 pricePerSquare: 100

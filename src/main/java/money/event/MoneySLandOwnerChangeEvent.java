@@ -16,25 +16,26 @@ public class MoneySLandOwnerChangeEvent extends MoneySLandEvent implements Cance
 	}
 
 
-	private final int cause;
+	private final Cause cause;
 	private final String originalOwner;
 
 	private String newOwner;
 
-	public static final int CAUSE_BUY = 1;
-	public static final int CAUSE_TRANSFER = 2;
-	public static final int CAUSE_PLUGIN = 3; // for other plugins
-	public static final int CAUSE_FREE = 4; //newOwner = null
+	public enum Cause{
+		BUY,
+		TRANSFER,
+		PLUGIN, // for other plugins
+		FREE //newOwner = null
+	}
 
-
-	public MoneySLandOwnerChangeEvent(SLand land, String originalOwner, String newOwner, int cause) {
+	public MoneySLandOwnerChangeEvent(SLand land, String originalOwner, String newOwner, Cause cause) {
 		super(land);
 		this.originalOwner = originalOwner;
 		this.newOwner = newOwner;
 		this.cause = cause;
 	}
 
-	public int getCause() {
+	public Cause getCause() {
 		return cause;
 	}
 

@@ -5,10 +5,9 @@ import cn.nukkit.level.format.FullChunk;
 
 /**
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
-public class FrameBlockPlacer extends BlockPlacer {
-	public FrameBlockPlacer(Block block, int min, int max) {
+public class FrameRangeBlockPlacer extends RangeBlockPlacer implements BlockPlacer {
+	public FrameRangeBlockPlacer(Block block, int min, int max) {
 		super(block, min, max);
 	}
 

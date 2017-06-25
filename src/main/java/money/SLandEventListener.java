@@ -3,15 +3,19 @@ package money;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
+import cn.nukkit.event.entity.ProjectileLaunchEvent;
+import cn.nukkit.event.inventory.InventoryTransactionEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.item.Item;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,7 +40,7 @@ public final class SLandEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTouch(PlayerInteractEvent event) {
-        event.getPlayer().sendMessage(event.getBlock().getLocation().toString());
+        //event.getPlayer().sendMessage(event.getBlock().getLocation().toString());
 
         Block block = event.getBlock();
         if (isShopBlock(block)) {
@@ -85,7 +89,7 @@ public final class SLandEventListener implements Listener {
                         player.sendMessage(this.plugin.translateMessage("buy-if",
                                 "price", this.plugin.calculatePrice(player, land),
                                 "currency", Money.getInstance().getCurrency1(),
-                                "money", this.plugin.getMoney(player))
+                                "money", Money.getInstance().getMoney(player))
                         );
                     }
                     break;
@@ -95,7 +99,7 @@ public final class SLandEventListener implements Listener {
                             "size", land.getX().getLength() * land.getZ().getLength(),
                             "price", this.plugin.calculatePrice(player, land),
                             "currency", Money.getInstance().getCurrency1(),
-                            "money", this.plugin.getMoney(player)) + (event.getPlayer().hasPermission("money.permission.sland.free") ? this.plugin.translateMessage("make-free") : "")
+                            "money", Money.getInstance().getMoney(player)) + (event.getPlayer().hasPermission("money.permission.sland.free") ? this.plugin.translateMessage("make-free") : "")
                     );
             }
         }

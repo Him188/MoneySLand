@@ -34,16 +34,19 @@ permissions:
       money.permission.sland.modify.interact:
         default: op
         description: "Allows op to touch blocks on the land through he wasn't invited from the land"
+
   # 允许所有玩家购买地皮
   # Allows everyone to buy the land
   money.permission.sland.buy:
     default: true
     description: "Allows everyone to buy the land"
+
   # 允许服务器管理员使用木棒使地皮变为公益地皮 (任何玩家都可以直接修改地皮)
   # Allows op to make the land public (Everyone can modify the land)
   money.permission.sland.free:
     default: op
     description: "Allows op to make the land public (Everyone can modify the land)"
+
   # 允许服务器管理员创建地皮地图
   # Allows op to run generate land command
   money.command.generateland:

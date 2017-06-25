@@ -16,23 +16,25 @@ public class MoneySLandInviteeChangeEvent extends MoneySLandEvent implements Can
 	}
 
 
-	public static final int TYPE_ADD = 1;
-	public static final int TYPE_REMOVE = 2;
+	public enum Type{
+		ADD,
+		REMOVE,
+	}
 
 	private final String invitee;
-	private final int type;
+	private final Type type;
 
 	public String getInvitee() {
 		return invitee;
 	}
 
-	public MoneySLandInviteeChangeEvent(SLand land, String invitee, int type) {
+	public MoneySLandInviteeChangeEvent(SLand land, String invitee, Type type) {
 		super(land);
 		this.invitee = invitee;
 		this.type = type;
 	}
 
-	public int getType() {
+	public Type getType() {
 		return type;
 	}
 }

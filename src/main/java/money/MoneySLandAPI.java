@@ -61,5 +61,7 @@ public interface MoneySLandAPI {
      * @return 是否成功 <br>if success
      */
     boolean buyLand(SLand land, Player player);
+
+    float calculatePrice(Player player, SLand land);
 }
 
