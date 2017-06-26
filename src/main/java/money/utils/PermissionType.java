@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
-import money.SLandEventListener;
+import money.MoneySLandEventListener;
 import money.sland.SLand;
 
 /**
@@ -17,19 +17,19 @@ import money.sland.SLand;
 public enum PermissionType {
 	/**
 	 * @see PlayerInteractEvent
-	 * @see SLandEventListener#permissionChecker(PlayerInteractEvent)
+	 * @see MoneySLandEventListener#permissionChecker(PlayerInteractEvent)
 	 */
 	TOUCH("touch", "money.permission.sland.modify.touch"),
 
 	/**
 	 * @see BlockBreakEvent
-	 * @see SLandEventListener#permissionChecker(BlockBreakEvent) 使用处
+	 * @see MoneySLandEventListener#permissionChecker(BlockBreakEvent) 使用处
 	 */
 	BREAK("break", "money.permission.sland.modify.break"),
 
 	/**
 	 * @see BlockPlaceEvent
-	 * @see SLandEventListener#permissionChecker(BlockPlaceEvent) 使用处
+	 * @see MoneySLandEventListener#permissionChecker(BlockPlaceEvent) 使用处
 	 */
 	PLACE("place", "money.permission.sland.modify.place");
 

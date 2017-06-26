@@ -11,8 +11,10 @@ import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Position;
+import money.generator.SLandGenerator;
 import money.sland.SLand;
 import money.utils.PermissionType;
+import money.utils.SLandUtils;
 import money.utils.StringAligner;
 
 import java.util.ArrayList;
@@ -23,11 +25,11 @@ import java.util.Optional;
  * @author Him188 @ MoneySLand Project
  * @since MoneySLand 1.0.0
  */
-public final class SLandEventListener implements Listener {
+public final class MoneySLandEventListener implements Listener {
 	private final MoneySLand plugin;
 	private final List<String> temp = new ArrayList<>();
 
-	SLandEventListener(MoneySLand plugin) {
+	MoneySLandEventListener(MoneySLand plugin) {
 		this.plugin = plugin;
 	}
 
@@ -44,7 +46,7 @@ public final class SLandEventListener implements Listener {
 		if ((event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK || event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
 		    && !this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.TOUCH)) {
 			event.setCancelled();
-			event.getPlayer().sendMessage(this.plugin.translateMessage("has-no-permission"));
+			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
 		}
 	}
 
@@ -52,7 +54,7 @@ public final class SLandEventListener implements Listener {
 	public void permissionChecker(BlockBreakEvent event) {
 		if (!this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.BREAK)) {
 			event.setCancelled();
-			event.getPlayer().sendMessage(this.plugin.translateMessage("has-no-permission"));
+			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
 		}
 	}
 
@@ -60,13 +62,14 @@ public final class SLandEventListener implements Listener {
 	public void permissionChecker(BlockPlaceEvent event) {
 		if (!this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.PLACE)) {
 			event.setCancelled();
-			event.getPlayer().sendMessage(this.plugin.translateMessage("has-no-permission"));
+			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
 		}
 	}
 
 	private boolean testPermission(Player player, Position position, PermissionType type) {
-		return player.hasPermission(type.getPermission()) || Optional.ofNullable(this.plugin.getLand(position)).map((land) -> land.testPermission(player,
-				type)).orElse(true);
+		return !SLandUtils.arrayContains(SLandGenerator.GENERATOR_NAMES, position.level.getProvider().getGenerator())
+		       || player.hasPermission(type.getPermission())
+		       || Optional.ofNullable(this.plugin.getLand(position)).map((land) -> land.testPermission(player, type)).orElse(true);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -75,6 +78,8 @@ public final class SLandEventListener implements Listener {
 		if (!isShopBlock(block)) {
 			return;
 		}
+
+		event.setCancelled();
 
 		Item item = event.getItem();
 		Player player = event.getPlayer();
@@ -94,14 +99,14 @@ public final class SLandEventListener implements Listener {
 			case Item.AIR:
 			case Item.STICK:
 				if (!player.hasPermission("money.permission.sland." + (id == Item.AIR ? "buy" : "free"))) {
-					player.sendMessage(this.plugin.translateMessage("has-no-permission"));
+					player.sendMessage(this.plugin.translateMessage("event.no.permission"));
 					return;
 				}
 
 				//buy land
 				if (land.isOwned()) {
 					block.getLevel().setBlock(block, Block.get(Block.AIR));
-					player.sendMessage(this.plugin.translateMessage("already-bought"));
+					player.sendMessage(this.plugin.translateMessage("already.bought"));
 					return;
 				}
 
@@ -110,16 +115,16 @@ public final class SLandEventListener implements Listener {
 						land.setFree(true);
 					}
 					if (this.plugin.buyLand(land, player)) {
-						player.sendMessage(this.plugin.translateMessage("buy-success"));
+						player.sendMessage(this.plugin.translateMessage("buy.success"));
 					} else {
-						player.sendMessage(this.plugin.translateMessage("buy-failed"));
+						player.sendMessage(this.plugin.translateMessage("buy.failed"));
 					}
 				} else {
 					temp.add(hash);
 					Server.getInstance().getScheduler().scheduleDelayedTask(this.plugin, () -> temp.remove(hash), 20 * 30);
 					StringAligner aligner = new StringAligner(this.plugin.calculatePrice(player, land), Money.getInstance().getMoney(player));
 
-					player.sendMessage(this.plugin.translateMessage("buy-if",
+					player.sendMessage(this.plugin.translateMessage("event.buy.confirm",
 							"price", aligner.string(),
 							"currency", Money.getInstance().getCurrency1(),
 							"money", aligner.another())
@@ -129,13 +134,15 @@ public final class SLandEventListener implements Listener {
 			default:
 				StringAligner aligner = new StringAligner(this.plugin.calculatePrice(player, land), Money.getInstance().getMoney(player));
 
-				player.sendMessage(this.plugin.translateMessage("land-info",
+				player.sendMessage(this.plugin.translateMessage("land.info",
 						"id", land.getTime(),
 						"size", land.getX().getRealLength() * land.getZ().getRealLength(),
 						"price", aligner.string(),
 						"currency", Money.getInstance().getCurrency1(),
-						"money", aligner.another()) + (event.getPlayer().hasPermission("money.permission.sland.free") ? this.plugin.translateMessage("make-free") : "")
+						"money", aligner.another())
 				);
+
+				player.sendMessage(event.getPlayer().hasPermission("money.permission.sland.free") ? this.plugin.translateMessage("make-free") : "");
 		}
 
 	}

@@ -77,4 +77,13 @@ public final class SLandUtils {
 		}
 		return null;
 	}
+
+	public static <T> boolean arrayContains(T[] arr, T item){
+		for (T t : arr) {
+			if (t.equals(item)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

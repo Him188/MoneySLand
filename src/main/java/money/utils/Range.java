@@ -29,6 +29,10 @@ public class Range {
 		return (number >= min && number < max) || (Math.abs(number) >= min && Math.abs(number) < max);
 	}
 
+	public boolean realInRange(int number) {
+		return (number >= min && number < max) || (Math.abs(number) >= min && Math.abs(number) < max);
+	}
+
 	public int getLength() {
 		return max - min;
 	}

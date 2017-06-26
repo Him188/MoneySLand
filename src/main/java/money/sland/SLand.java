@@ -148,8 +148,8 @@ public final class SLand {
 	 */
 	public boolean inRange(Position position) {
 		return position.getLevel().getFolderName().equalsIgnoreCase(level)
-		       && x.inRange(position.getFloorX())
-		       && z.inRange(position.getFloorZ());
+		       && x.realInRange(position.getFloorX())
+		       && z.realInRange(position.getFloorZ());
 	}
 
 	/**

@@ -45,7 +45,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	private int id;
 
 	private ConfigSection language;
-	private SLandEventListener eventListener;
+	private MoneySLandEventListener eventListener;
 
 	private TaskHandler savingTask;
 
@@ -54,9 +54,11 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	public void onLoad() {
 		//当地形生成器已注册时, 方法返回 false
 		//服务器重启不会清空地形生成器
-		Generator.addGenerator(SLandGenerator.class, "land", Generator.TYPE_INFINITE);
-		Generator.addGenerator(SLandGenerator.class, "sland", Generator.TYPE_INFINITE);
-		Generator.addGenerator(SLandGenerator.class, "地皮", Generator.TYPE_INFINITE);
+
+		reloadGeneratorDefaultSettings();
+		for (String name : SLandGenerator.GENERATOR_NAMES) {
+			Generator.addGenerator(SLandGenerator.class, name, Generator.TYPE_INFINITE);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -87,7 +89,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		}
 
 		if (eventListener == null) { //for reload
-			eventListener = new SLandEventListener(this);
+			eventListener = new MoneySLandEventListener(this);
 			getServer().getPluginManager().registerEvents(eventListener, this);
 		}
 
@@ -167,8 +169,8 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	private void save() {
 		for (SLand land : modifiedLands.values()) {
 			landConfig.set(String.valueOf(land.getId()), land.save());
-			landConfig.save();
 		}
+		landConfig.save();
 		modifiedLands.clear();
 	}
 

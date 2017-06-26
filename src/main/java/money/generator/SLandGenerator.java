@@ -6,6 +6,7 @@ import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
+import com.google.common.collect.Maps;
 import money.MoneySLand;
 import money.sland.SLand;
 import money.utils.FrameRangeBlockPlacer;
@@ -22,10 +23,20 @@ import java.util.*;
  * @since MoneySLand 1.0.0
  */
 public class SLandGenerator extends Generator {
-	private static Map<String, Object> DEFAULT_SETTINGS;
+	public static String[] GENERATOR_NAMES = {
+			"land",
+			"sland",
+			"地皮",
+			"plot"
+	};
+
+	/**
+	 * unmodifiable
+	 */
+	public static Map<String, Object> DEFAULT_SETTINGS;
 
 	public static void setDefaultSettings(Map<String, Object> defaultSettings) {
-		DEFAULT_SETTINGS = defaultSettings;
+		DEFAULT_SETTINGS = Collections.unmodifiableMap(defaultSettings);
 	}
 
 
@@ -197,7 +208,7 @@ public class SLandGenerator extends Generator {
 		}
 	}
 
-	private Block getBlock(Map<String, Object> map, String name, Block defaultBlock) {
+	private static Block getBlock(Map<String, Object> map, String name, Block defaultBlock) {
 		try {
 			Block block = Block.get(toInt(map.getOrDefault(name + "Id", defaultBlock.getId())), toInt(map.getOrDefault(name + "Damage", defaultBlock.getDamage())));
 			return block == null ? defaultBlock : block;
@@ -211,7 +222,7 @@ public class SLandGenerator extends Generator {
 	}
 
 	public SLandGenerator(Map<String, Object> options) {
-		this.options = Optional.ofNullable(options).filter(o -> !o.isEmpty()).orElse(DEFAULT_SETTINGS);
+		this.options = Optional.ofNullable(options).filter(o -> !o.isEmpty()).orElse(Maps.newHashMap(DEFAULT_SETTINGS));
 	}
 
 
@@ -258,7 +269,6 @@ public class SLandGenerator extends Generator {
 		if (this.broken) {
 			return;
 		}
-
 
 		int realChunkX = chunkX * 16;
 		int realChunkZ = chunkZ * 16;
