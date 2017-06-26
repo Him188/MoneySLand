@@ -49,7 +49,7 @@ public class GenerateLandCommand extends PluginCommand<MoneySLand> implements Co
 		if (args.length == 2) {
 			settings = getPlugin().loadGeneratorSettings(args[1]);
 			if (settings.isEmpty()) {
-				sender.sendMessage(getPlugin().translateMessage("commands.generateland.name.invalid", "level", args[0], "file", args[1]));
+				sender.sendMessage(getPlugin().translateMessage("commands.generateland.name-invalid", "level", args[0], "file", args[1]));
 				return true;
 			}
 		}

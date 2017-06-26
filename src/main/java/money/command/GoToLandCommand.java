@@ -17,7 +17,7 @@ public class GoToLandCommand extends SLandCommand implements CommandExecutor {
 	public GoToLandCommand(String name, MoneySLand owner) {
 		super(name, owner);
 
-		this.setPermission("money.command.generateland");
+		this.setPermission("money.command.gotoland");
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.gotoland.usage"));
 		this.setDescription(owner.translateMessage("commands.gotoland.description"));
@@ -49,21 +49,21 @@ public class GoToLandCommand extends SLandCommand implements CommandExecutor {
 				try {
 					id = Integer.parseInt(args[0]);
 				} catch (NumberFormatException e) {
-					sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.id.invalid",
+					sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.level-invalid",
 							"id", args[0]
 					));
 					return true;
 				}
 				SLand land = this.getPlugin().getLandPool().get(id);
 				if (land == null) {
-					sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.id.invalid",
+					sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.id-invalid",
 							"id", args[0]
 					));
 					return true;
 				}
 
 				((Player) sender).teleport(land.getShopBlock());
-				sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.success"));
+				sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.success"));
 				return true;
 			default:
 				return false;

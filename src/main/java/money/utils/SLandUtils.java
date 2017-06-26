@@ -1,11 +1,13 @@
 package money.utils;
 
+import cn.nukkit.math.Vector2;
 import cn.nukkit.math.Vector3;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 /**
  * @author Him188 @ MoneySLand Project
@@ -78,12 +80,21 @@ public final class SLandUtils {
 		return null;
 	}
 
-	public static <T> boolean arrayContains(T[] arr, T item){
+	public static <T> boolean arrayContains(T[] arr, T item) {
 		for (T t : arr) {
 			if (t.equals(item)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Vector2> T calculateCenterPos(T v1, T v2) {
+		return (T) v1.add(v1.subtract(v2).divide(2));
+	}
+
+	public static Vector2 calculateCenterPos(Range x, Range z) {
+		return calculateCenterPos(new Vector2(x.getMax(), z.getMax()), new Vector2(x.getMax(), z.getMax()));
 	}
 }

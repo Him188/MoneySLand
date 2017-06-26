@@ -219,7 +219,7 @@ public final class SLand {
 	 * @return if this land has owner
 	 */
 	public boolean isOwned() {
-		return getOwner() != null && !getOwner().equals("");
+		return !isFree()&& getOwner() != null && !getOwner().equals("");
 	}
 
 	/**
