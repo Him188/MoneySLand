@@ -1,4 +1,4 @@
-package money.range;
+package money.utils;
 
 import cn.nukkit.level.format.FullChunk;
 

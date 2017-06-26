@@ -15,12 +15,11 @@ import money.event.MoneySLandBuyEvent;
 import money.event.MoneySLandOwnerChangeEvent;
 import money.event.MoneySLandPriceCalculateEvent;
 import money.generator.SLandGenerator;
-import money.utils.PropertiesHelper;
+import money.sland.SLand;
+import money.sland.SLandPool;
+import money.utils.SLandUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -53,7 +52,8 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 	@Override
 	public void onLoad() {
-		//当地形生成器已注册时, 方法返回 false. 因此无需考虑 reload
+		//当地形生成器已注册时, 方法返回 false
+		//服务器重启不会清空地形生成器
 		Generator.addGenerator(SLandGenerator.class, "land", Generator.TYPE_INFINITE);
 		Generator.addGenerator(SLandGenerator.class, "sland", Generator.TYPE_INFINITE);
 		Generator.addGenerator(SLandGenerator.class, "地皮", Generator.TYPE_INFINITE);
@@ -73,6 +73,14 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 		initConfigSettings();
 
+		try {
+			initLanguageSettings(getConfig().get("language", "chs"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			getLogger().critical("无法读取语言文件!! 请删除语言文件以恢复初始或修复其中的问题");
+			getLogger().critical("Could not load language file!! Please delete language file or fix bugs in it");
+		}
+
 		String command = getConfig().getString("generator-command", null);
 		if (command != null && !command.isEmpty()) { //for disable command
 			Server.getInstance().getCommandMap().register(command, new GenerateLandCommand(command, this));
@@ -84,19 +92,11 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		}
 
 		savingTask = Server.getInstance().getScheduler().scheduleRepeatingTask(this, this::save, 20 * 60);
-
-		try {
-			initLanguageSettings(getConfig().get("language", "chs"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			getLogger().critical("无法读取语言文件!! 请删除语言文件以恢复初始或修复其中的问题");
-			getLogger().critical("Could not load language file!! Please delete language file or fix bugs in it");
-		}
 	}
 
 	private void reloadGeneratorDefaultSettings() {
 		saveResource("generator_default.properties");
-		SLandGenerator.setDefaultSettings(PropertiesHelper.loadProperties(getDataFolder() + File.separator + "generator_default.properties"));
+		SLandGenerator.setDefaultSettings(SLandUtils.loadProperties(getDataFolder() + File.separator + "generator_default.properties"));
 	}
 
 	public Map<String, Object> loadGeneratorSettings(String name) {
@@ -116,7 +116,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 			}
 		}
 
-		return PropertiesHelper.loadProperties(file);
+		return SLandUtils.loadProperties(file);
 	}
 
 	private void initConfigSettings() {
@@ -143,7 +143,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 		Properties properties = new Properties();
 		File file = new File(getDataFolder() + File.separator + "language.properties");
-		properties.load(new FileInputStream(file));
+		properties.load(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 		this.language = new ConfigSection(new LinkedHashMap<String, Object>() {
 			{
 				properties.forEach((key, value) -> put(key.toString(), value));
@@ -151,20 +151,22 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		});
 
 		int size = this.language.size();
-		PropertiesHelper.loadProperties(getResource("language/" + language + ".properties")).forEach((key, value) -> {
+		SLandUtils.loadProperties(getResource("language/" + language + "/language.properties")).forEach((key, value) -> {
 			if (!this.language.containsKey(key)) {
 				this.language.set(key, value);
 			}
 		});
+
 		if (this.language.size() != size) {
 			properties.putAll(this.language);
-			properties.store(new FileOutputStream(file), "MoneySLand language config");
+
+			properties.store(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"), "MoneySLand language config");
 		}
 	}
 
 	private void save() {
-		for (SLand land : modifiedLands) {
-			landConfig.set(String.valueOf(land.getTime()), land.save());
+		for (SLand land : modifiedLands.values()) {
+			landConfig.set(String.valueOf(land.getId()), land.save());
 			landConfig.save();
 		}
 		modifiedLands.clear();
@@ -173,7 +175,11 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	@Override
 	public void onDisable() {
 		save();
-		savingTask.cancel();
+
+		if (savingTask != null) {
+			savingTask.cancel();
+			savingTask = null;
+		}
 	}
 
 	public String translateMessage(String message) {
@@ -226,7 +232,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	}
 
 	public SLand getLand(Position position) {
-		for (SLand land : lands) {
+		for (SLand land : lands.values()) {
 			if (land.inRange(position) || land.getShopBlock().equals(position)) {
 				return land;
 			}
@@ -243,7 +249,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	 */
 	public SLand[] getLands(String player) {
 		List<SLand> list = new ArrayList<>();
-		for (SLand land : lands) {
+		for (SLand land : lands.values()) {
 			if (land.getOwner().equalsIgnoreCase(player)) {
 				list.add(land);
 			}
@@ -281,7 +287,6 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 			return false;
 		}
 	}
-
 
 	public float calculatePrice(Player player, SLand land) {
 		float price = (float) this.getConfig().getDouble("pricePerSquare", 0) * land.getSquare();

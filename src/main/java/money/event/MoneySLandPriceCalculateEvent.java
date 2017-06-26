@@ -2,7 +2,7 @@ package money.event;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.HandlerList;
-import money.SLand;
+import money.sland.SLand;
 
 /**
  * @author Him188 @ MoneySLand Project

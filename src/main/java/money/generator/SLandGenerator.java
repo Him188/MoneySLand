@@ -6,10 +6,12 @@ import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.utils.ConfigSection;
 import money.MoneySLand;
-import money.SLand;
-import money.range.*;
+import money.sland.SLand;
+import money.utils.FrameRangeBlockPlacer;
+import money.utils.Range;
+import money.utils.RangeBlockPlacer;
+import money.utils.SingleBlockPlacer;
 
 import java.util.*;
 
@@ -93,10 +95,10 @@ public class SLandGenerator extends Generator {
 
 	//地表宽度
 	protected RangeBlockPlacer groundWidth; //center
-	
+
 	//购买地皮的方块
 	protected Block shopBlock;
-	
+
 	protected SingleBlockPlacer shopPlacer;
 
 	//边框和过道宽度是否大于总宽度
@@ -167,7 +169,7 @@ public class SLandGenerator extends Generator {
 		}
 
 		/*
-	    PopulatorCaves caves = new PopulatorCaves();
+		PopulatorCaves caves = new PopulatorCaves();
 		this.populators.add(caves);
 
 		PopulatorRavines ravines = new PopulatorRavines();
@@ -275,16 +277,14 @@ public class SLandGenerator extends Generator {
 							//领地方块
 							this.shopPlacer.placeBlock(chunk, _x, this.groundHeight + 2, _z);
 
-							int minX, minZ;
-							SLand land = new SLand(
-									new Range(minX = 1 + realChunkX + _x,
-											minX + this.groundWidth.getLength()),
-									new Range(minZ = 1 + realChunkZ + _z,
-											minZ + this.groundWidth.getLength())
+							int temp;
+							SLand land = SLand.newInitialLand(
+									MoneySLand.getInstance().getLandPool().nextLandId(),
+									new Range(temp = 1 + realChunkX + _x, temp + this.groundWidth.getLength()),
+									new Range(temp = 1 + realChunkZ + _z, temp + this.groundWidth.getLength()),
+									chunk.getProvider().getLevel().getName(),
+									new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ)
 							);
-							land.reload(new ConfigSection()); //save default data
-							land.setLevel(chunk.getProvider().getLevel().getName());
-							land.setShopBlock(new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ));
 
 							MoneySLand.getInstance().getLandPool().add(land);
 							MoneySLand.getInstance().getModifiedLandPool().add(land);

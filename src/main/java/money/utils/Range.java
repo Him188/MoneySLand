@@ -1,4 +1,6 @@
-package money.range;
+package money.utils;
+
+import java.util.Objects;
 
 /**
  * Base range
@@ -31,6 +33,10 @@ public class Range {
 		return max - min;
 	}
 
+	public int getRealLength() {
+		return max - min + 1;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return obj == this || (obj instanceof Range && ((Range) obj).getMin() == this.getMin() && ((Range) obj).getMax() == this.getMax());
@@ -42,6 +48,8 @@ public class Range {
 	}
 
 	public static Range fromString(String string) {
+		Objects.requireNonNull(string);
+
 		String[] strings = string.split("/");
 		if (strings.length != 2) {
 			return null;

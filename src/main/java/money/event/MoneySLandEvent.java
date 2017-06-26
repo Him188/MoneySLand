@@ -1,6 +1,6 @@
 package money.event;
 
-import money.SLand;
+import money.sland.SLand;
 
 /**
  * @author Him188 @ MoneySLand Project
