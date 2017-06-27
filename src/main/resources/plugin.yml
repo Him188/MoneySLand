@@ -49,6 +49,19 @@ permissions:
 
   # 允许服务器管理员创建地皮地图
   # Allows op to run generate land command
-  money.command.generateland:
-    default: op
-    description: "Allows op to run generate land command"
+  money.command.sland:
+    default: true
+    descriptin: "Allows players to run MoneySLand command"
+    child:
+      # 允许服务器管理员创建地皮地图
+      # Allows op to run generate land command
+      money.command.sland.generateland:
+        default: op
+        description: "Allows op to run generate land command"
+
+      # 允许服务器管理员创建地皮地图
+      # Allows op to run generate land command
+      money.command.sland.gotoland:
+        default: op
+        description: "Allows op to run generate land command"
+

@@ -1,4 +1,5 @@
 # MoneySLand
+
 ### 简介
 
 这是运行在 Nukkit 服务器上的一款地皮插件
@@ -47,18 +48,25 @@
 
 你可以通过修改玩家拥有的权限，来实现自定义特权等特性
 
+**指令权限**
 
-|                 权限名                 |            用处             |    默认拥有者    |
-|:-------------------------------------:|:--------------------------:|:---------------:|
-|   money.command.sland.generateland    |         创建地皮世界         | 管理员(包括控制台) |
-|     money.command.sland.gotoland      |      传送到自己拥有的地皮      |     所有玩家     |
-|     money.command.sland.idleland      |      传送到未被购买的地皮      |     所有玩家     |
-|  money.permission.sland.modify.touch  |     触摸自己没有权限的地皮     |      管理员      |
-|  money.permission.sland.modify.place  | 在自己没有权限的地皮上放置方块  |      管理员      |
-|  money.permission.sland.modify.break  | 在自己没有权限的地皮上拆除方块  |      管理员      |
-| money.permission.sland.{LandId}.touch |    触摸Id为 LandId 的地皮    |       无        |
-| money.permission.sland.{LandId}.place | 在Id为 LandId 的地皮上放置方块 |       无        |
-| money.permission.sland.{LandId}.break | 在Id为 LandId 的地皮上拆除方块 |       无        |
+|              权限名               |       用处        |    默认拥有者    |
+|:--------------------------------:|:----------------:|:---------------:|
+| money.command.sland.generateland |    创建地皮世界    | 管理员(包括控制台) |
+|   money.command.sland.gotoland   | 传送到自己拥有的地皮 |     所有玩家     |
+|   money.command.sland.idleland   | 传送到未被购买的地皮 |     所有玩家     |
+
+**指令权限**
+
+|                  权限名                   |            用处             | 默认拥有者 |
+|:----------------------------------------:|:--------------------------:|:---------:|
+|   money.permission.sland.modify.touch    |     触摸自己没有权限的地皮     |   管理员   |
+|   money.permission.sland.modify.place    | 在自己没有权限的地皮上放置方块  |   管理员   |
+|   money.permission.sland.modify.break    | 在自己没有权限的地皮上拆除方块  |   管理员   |
+| money.permission.sland.{LandId}.interact |    触摸Id为 LandId 的地皮    |    无     |
+|  money.permission.sland.{LandId}.place   | 在Id为 LandId 的地皮上放置方块 |    无     |
+|  money.permission.sland.{LandId}.break   | 在Id为 LandId 的地皮上拆除方块 |    无     |
+|        money.permission.sland.buy        |          购买地皮           |  所有玩家  |
 
 --------
 

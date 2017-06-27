@@ -17,6 +17,8 @@ import money.utils.PermissionType;
 import money.utils.SLandUtils;
 import money.utils.StringAligner;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,12 +43,39 @@ public final class MoneySLandEventListener implements Listener {
 		}
 	}
 
+	private static Method METHOD;
+
+	static {
+		try {
+			METHOD = PlayerInteractEvent.class.getMethod("getAction");
+			METHOD.setAccessible(true);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void permissionChecker(PlayerInteractEvent event) {
-		if ((event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK || event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
-		    && !this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.TOUCH)) {
-			event.setCancelled();
-			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
+		try {
+			if (isAction(METHOD.invoke(event))
+			    && !this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.TOUCH)) {
+				event.setCancelled();
+				event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
+			}
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private static boolean isAction(Object object) { //for old api and new api.
+		try {
+			Class.forName("cn.nukkit.event.player.PlayerInteractEvent$Action");
+			//object is must Action
+			return object == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK || object == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK;
+		} catch (ClassNotFoundException e) {
+			//object is must int
+			return (int) object == 0 || (int) object == 1;
 		}
 	}
 
