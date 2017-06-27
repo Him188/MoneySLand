@@ -44,7 +44,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 	private int id;
 
-	private ConfigSection language;
+	private LinkedHashMap<String, Object> language;
 	private MoneySLandEventListener eventListener;
 
 	private TaskHandler savingTask;
@@ -71,12 +71,12 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		modifiedLands = new SLandPool();
 
 		landConfig = new Config(getDataFolder() + File.separator + "lands.dat", Config.JSON);
-		landConfig.getSections().values().forEach((o) -> lands.add((ConfigSection) o));
+		landConfig.getSections().values().forEach((o) -> lands.add(SLand.newLand((ConfigSection) o)));
 
 		initConfigSettings();
 
 		try {
-			initLanguageSettings(getConfig().get("language", "chs"));
+			initLanguageSettings(getConfig().getString("language", "chs"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			getLogger().critical("无法读取语言文件!! 请删除语言文件以恢复初始或修复其中的问题");
@@ -86,14 +86,14 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		String command = getConfig().getString("generator-command", null);
 		if (command != null && !command.isEmpty()) { //for disable command
 			Server.getInstance().getCommandMap().register(command, new GenerateLandCommand(command, this));
-		}
+		} // TODO: 2017/6/27 other commands
 
 		if (eventListener == null) { //for reload
 			eventListener = new MoneySLandEventListener(this);
 			getServer().getPluginManager().registerEvents(eventListener, this);
 		}
 
-		savingTask = Server.getInstance().getScheduler().scheduleRepeatingTask(this, this::save, 20 * 60);
+		savingTask = Server.getInstance().getScheduler().scheduleDelayedRepeatingTask(this, this::save, 20 * 60, 20 * 60);
 	}
 
 	private void reloadGeneratorDefaultSettings() {
@@ -146,16 +146,16 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		Properties properties = new Properties();
 		File file = new File(getDataFolder() + File.separator + "language.properties");
 		properties.load(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-		this.language = new ConfigSection(new LinkedHashMap<String, Object>() {
+		this.language = new LinkedHashMap<String, Object>() {
 			{
 				properties.forEach((key, value) -> put(key.toString(), value));
 			}
-		});
+		};
 
 		int size = this.language.size();
 		SLandUtils.loadProperties(getResource("language/" + language + "/language.properties")).forEach((key, value) -> {
 			if (!this.language.containsKey(key)) {
-				this.language.set(key, value);
+				this.language.put(key, value);
 			}
 		});
 
