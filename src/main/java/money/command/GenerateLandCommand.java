@@ -4,7 +4,6 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.command.PluginCommand;
 import cn.nukkit.command.data.CommandParameter;
 import money.MoneySLand;
 import money.generator.SLandGenerator;
@@ -27,7 +26,7 @@ public class GenerateLandCommand extends SLandCommand implements CommandExecutor
 			{
 				put("1", new CommandParameter[]{
 						new CommandParameter("name", CommandParameter.ARG_TYPE_STRING, false),
-						new CommandParameter("settings_filename", CommandParameter.ARG_TYPE_STRING, true)
+						new CommandParameter("settings_filename", CommandParameter.ARG_TYPE_RAW_TEXT, true)
 				});
 			}
 		});
@@ -56,7 +55,8 @@ public class GenerateLandCommand extends SLandCommand implements CommandExecutor
 
 		if (Server.getInstance().generateLevel(args[0], new java.util.Random().nextLong(), SLandGenerator.class, settings)) {
 			sender.sendMessage(getPlugin().translateMessage(settings.isEmpty() ? "commands.generateland.success" : "commands.generateland.success.with.settings",
-					"level", args[0]));
+					"level", args[0])
+			);
 		} else {
 			sender.sendMessage(getPlugin().translateMessage("commands.generateland.failed", "level", args[0]));
 		}
