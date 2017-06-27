@@ -7,11 +7,8 @@ import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Level;
-import cn.nukkit.math.Vector2;
-import cn.nukkit.math.Vector3;
 import money.MoneySLand;
 import money.sland.SLand;
-import money.utils.SLandUtils;
 
 import java.util.HashMap;
 import java.util.stream.Stream;
@@ -23,7 +20,11 @@ public class IdleLandCommand extends SLandCommand implements CommandExecutor {
 	public IdleLandCommand(String name, MoneySLand owner) {
 		super(name, owner);
 
-		this.setPermission("money.command.idleland");
+
+		this.setPermission(
+				"money.command.sland;" +
+				"money.command.sland.idleland"
+		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.idleland.usage"));
 		this.setDescription(owner.translateMessage("commands.idleland.description"));
@@ -71,13 +72,12 @@ public class IdleLandCommand extends SLandCommand implements CommandExecutor {
 
 		Stream<SLand> values = this.getPlugin().getLandPool().values().stream().filter(land -> land.getLevel().equals(level.getFolderName()) && !land.isOwned());
 		SLand land;
-		if (values.count() == 0 || ((land = values.findFirst().orElse(null)) == null)) {
+		if (((land = values.findFirst().orElse(null)) == null)) {
 			sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.full"));
 			return true;
 		}
 
-		Vector2 vector2 = SLandUtils.calculateCenterPos(land.getX(), land.getZ());
-		((Player) sender).teleport(new Vector3(vector2.x, land.getShopBlock().y, vector2.y));
+		((Player) sender).teleport(land.getShopBlock().add(0, 2));
 		sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.success"));
 		return true;
 	}

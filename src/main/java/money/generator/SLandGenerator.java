@@ -2,6 +2,7 @@ package money.generator;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
+import cn.nukkit.level.Position;
 import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.NukkitRandom;
@@ -14,7 +15,6 @@ import money.utils.Range;
 import money.utils.RangeBlockPlacer;
 import money.utils.SingleBlockPlacer;
 
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 /**
@@ -284,25 +284,27 @@ public class SLandGenerator extends Generator {
 			x = (_x + realChunkX) % totalWidth;
 			for (int _z = 0; _z < 16; _z++) {
 				z = (_z + realChunkZ) % totalWidth;
+				label:
 				for (int _y = 0; _y < this.groundHeight; _y++) {
-					if (this.frameBlockLeft.inRange(x) || this.frameBlockLeft.inRange(z) ||
-					    this.frameBlockRight.inRange(x) || this.frameBlockRight.inRange(z)) {
-						if (this.frameBlockLeft.inRange(x) && this.frameBlockLeft.inRange(z)) {
-							//领地方块
-							this.shopPlacer.placeBlock(chunk, _x, this.groundHeight + 2, _z);
-
-							int temp;
-							SLand land = SLand.newInitialLand(
-									MoneySLand.getInstance().getLandPool().nextLandId(),
-									new Range(temp = 1 + realChunkX + _x, temp + this.groundWidth.getLength()),
-									new Range(temp = 1 + realChunkZ + _z, temp + this.groundWidth.getLength()),
-									chunk.getProvider().getLevel().getName(),
-									new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ)
-							);
-
-							MoneySLand.getInstance().getLandPool().add(land);
-							MoneySLand.getInstance().getModifiedLandPool().add(land);
+					if (this.frameBlockLeft.inRange(x) && this.frameBlockLeft.inRange(z)) {
+						//领地方块
+						this.shopPlacer.placeBlock(chunk, _x, this.groundHeight + 2, _z);
+						if (MoneySLand.getInstance().getLand(new Position(1 + realChunkX + _x, 0, 1 + realChunkZ + _z, chunk.getProvider().getLevel())) !=
+						    null) {
+							continue label;
 						}
+						int temp;
+						SLand land = SLand.newInitialLand(
+								MoneySLand.getInstance().getLandPool().nextLandId(),
+								new Range(temp = 1 + realChunkX + _x, temp + this.groundWidth.getLength()),
+								new Range(temp = 1 + realChunkZ + _z, temp + this.groundWidth.getLength()),
+								chunk.getProvider().getLevel().getFolderName(), //only can be used in populateChunk
+								new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ)
+						);
+
+						MoneySLand.getInstance().getLandPool().add(land);
+						MoneySLand.getInstance().getModifiedLandPool().add(land);
+						MoneySLand.getInstance().getLogger().debug("SLand #" + land.getId() + " in " + chunk.getProvider().getLevel().getFolderName() + " generated");
 					}
 				}
 			}

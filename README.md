@@ -56,17 +56,17 @@
 |   money.command.sland.gotoland   | 传送到自己拥有的地皮 |     所有玩家     |
 |   money.command.sland.idleland   | 传送到未被购买的地皮 |     所有玩家     |
 
-**指令权限**
+**操作权限**
 
-|                  权限名                   |            用处             | 默认拥有者 |
-|:----------------------------------------:|:--------------------------:|:---------:|
-|   money.permission.sland.modify.touch    |     触摸自己没有权限的地皮     |   管理员   |
-|   money.permission.sland.modify.place    | 在自己没有权限的地皮上放置方块  |   管理员   |
-|   money.permission.sland.modify.break    | 在自己没有权限的地皮上拆除方块  |   管理员   |
-| money.permission.sland.{LandId}.interact |    触摸Id为 LandId 的地皮    |    无     |
-|  money.permission.sland.{LandId}.place   | 在Id为 LandId 的地皮上放置方块 |    无     |
-|  money.permission.sland.{LandId}.break   | 在Id为 LandId 的地皮上拆除方块 |    无     |
-|        money.permission.sland.buy        |          购买地皮           |  所有玩家  |
+|                  权限名                   |             用处              | 默认拥有者 |
+|:----------------------------------------:|:----------------------------:|:---------:|
+|   money.permission.sland.modify.interact    |  在自己没有权限的地皮上点击方块   |   管理员   |
+|   money.permission.sland.modify.place    |  在自己没有权限的地皮上放置方块   |   管理员   |
+|   money.permission.sland.modify.break    |  在自己没有权限的地皮上拆除方块   |   管理员   |
+| money.permission.sland.{LandId}.interact | 在id为 {LandId} 的地皮上点击方块 |    无     |
+|  money.permission.sland.{LandId}.place   | 在id为 {LandId} 的地皮上放置方块 |    无     |
+|  money.permission.sland.{LandId}.break   | 在id为 {LandId} 的地皮上拆除方块 |    无     |
+|        money.permission.sland.buy        |           购买地皮            |  所有玩家  |
 
 --------
 

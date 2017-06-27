@@ -25,4 +25,8 @@ gotoland-command: gotoland
 
 # 传送到空闲地皮(没被购买的地皮)的指令
 # Command for teleporting to an idle land(which is not owned)
-idle-command: idle
+idleland-command: idleland
+
+# 查看所在位置的地皮的 ID 的指令
+# Command for querying land id around player
+landid-command: landid

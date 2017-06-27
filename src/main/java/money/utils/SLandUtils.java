@@ -1,13 +1,11 @@
 package money.utils;
 
-import cn.nukkit.math.Vector2;
 import cn.nukkit.math.Vector3;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
 
 /**
  * @author Him188 @ MoneySLand Project
@@ -64,18 +62,32 @@ public final class SLandUtils {
 		return loadProperties(new File(file));
 	}
 
-	public static Vector3 parseVector3(String arg) {
-		arg += ",";
-		if (arg.startsWith("Vector3")) {
-			arg = arg.substring(0, arg.length() - "Vector3".length());
-			String[] args = arg.split("=");
-			if (args.length == 4) {
-				return new Vector3(
-						Double.parseDouble(args[1].substring(0, args[1].length() - 2)),
-						Double.parseDouble(args[2].substring(1, args[2].length() - 2)),
-						Double.parseDouble(args[3].substring(2, args[3].length() - 2))
-				);
-			} else return null;
+	public static Vector3 parseVector3(final String arg) {
+		char[] chars = arg.toCharArray();
+
+		double[] v = new double[3];
+		int vPos = 0;
+		char[] buff = new char[64];
+		int buffPos = 0;
+		boolean readingPos = false;
+		for (char aChar : chars) {
+			if (aChar == '=') {
+				readingPos = true;
+				continue;
+			}
+
+			if (readingPos) {
+				if (aChar == ',' || aChar == ')') {
+					v[vPos++] = Double.parseDouble(new String(buff));
+					buff = new char[64];
+					if (aChar == ')') {
+						return new Vector3(v[0], v[1], v[2]);
+					}
+					readingPos = false;
+				} else {
+					buff[buffPos++] = aChar;
+				}
+			}
 		}
 		return null;
 	}
@@ -87,14 +99,5 @@ public final class SLandUtils {
 			}
 		}
 		return false;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T extends Vector2> T calculateCenterPos(T v1, T v2) {
-		return (T) v1.add(v1.subtract(v2).divide(2));
-	}
-
-	public static Vector2 calculateCenterPos(Range x, Range z) {
-		return calculateCenterPos(new Vector2(x.getMax(), z.getMax()), new Vector2(x.getMax(), z.getMax()));
 	}
 }

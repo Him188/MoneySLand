@@ -17,7 +17,10 @@ public class GoToLandCommand extends SLandCommand implements CommandExecutor {
 	public GoToLandCommand(String name, MoneySLand owner) {
 		super(name, owner);
 
-		this.setPermission("money.command.gotoland");
+		this.setPermission(
+				"money.command.sland;" +
+				"money.command.sland.gotoland"
+		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.gotoland.usage"));
 		this.setDescription(owner.translateMessage("commands.gotoland.description"));

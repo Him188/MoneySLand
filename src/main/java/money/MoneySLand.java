@@ -10,10 +10,7 @@ import cn.nukkit.scheduler.TaskHandler;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
-import money.command.GenerateLandCommand;
-import money.command.GoToLandCommand;
-import money.command.IdleLandCommand;
-import money.command.SLandCommand;
+import money.command.*;
 import money.event.MoneySLandBuyEvent;
 import money.event.MoneySLandOwnerChangeEvent;
 import money.event.MoneySLandPriceCalculateEvent;
@@ -54,9 +51,10 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 	private static final Map<String, Class<? extends SLandCommand>> COMMAND_CLASSES = new HashMap<String, Class<? extends SLandCommand>>() {
 		{
-			put("genarate", GenerateLandCommand.class);
+			put("generate", GenerateLandCommand.class);
 			put("gotoland", GoToLandCommand.class);
 			put("idleland", IdleLandCommand.class);
+			put("landid", LandIdCommand.class);
 		}
 	};
 
@@ -80,9 +78,6 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		lands = new SLandPool();
 		modifiedLands = new SLandPool();
 
-		landConfig = new Config(getDataFolder() + File.separator + "lands.dat", Config.JSON);
-		landConfig.getSections().values().forEach((o) -> lands.add(SLand.newLand((ConfigSection) o)));
-
 		initConfigSettings();
 
 		try {
@@ -93,14 +88,31 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 			getLogger().critical("Could not load language file!! Please delete language file or fix bugs in it");
 		}
 
+		landConfig = new Config(getDataFolder() + File.separator + "lands.dat", Config.YAML);
+		landConfig.getSections().values().forEach((o) -> {
+			try {
+				lands.add(SLand.newLand((ConfigSection) o));
+			} catch (IllegalArgumentException | NullPointerException e) {
+				getLogger().warning(this.translateMessage("load.error",
+						"id", ((ConfigSection) o).getInt("id", -1)
+				));
+				getLogger().debug("", e);
+			}
+		});
+		getLogger().info(this.translateMessage("load.success",
+				"count", getLandPool().size()
+		));
+
 		COMMAND_CLASSES.forEach((name, cmdClass) -> {
-			String command = getConfig().getString(name, null);
+			String command = getConfig().getString(name + "-command", null);
 			if (command != null && !command.isEmpty()) { //for disable command
+				this.getLogger().debug("Registering " + name + " command: " + command);
 				try {
 					Constructor<? extends SLandCommand> constructor = cmdClass.getConstructor(String.class, MoneySLand.class);
 					constructor.setAccessible(true);
 					Server.getInstance().getCommandMap().register(command, constructor.newInstance(command, this));
 				} catch (Exception e) {
+					e.printStackTrace();
 					return;
 				}
 			}
@@ -185,11 +197,17 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	}
 
 	private void save() {
+		if (modifiedLands.size() == 0) {
+			this.getLogger().debug("No land changes detected. Saving has benn intercepted.");
+			return;
+		}
+		this.getLogger().debug("Saving " + modifiedLands.size() + " lands...");
 		for (SLand land : modifiedLands.values()) {
 			landConfig.set(String.valueOf(land.getId()), land.save());
 		}
 		landConfig.save();
 		modifiedLands.clear();
+		this.getLogger().debug("Saving done...");
 	}
 
 	@Override

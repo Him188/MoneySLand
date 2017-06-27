@@ -126,23 +126,18 @@ public final class MoneySLandEventListener implements Listener {
 		int id = item.getId();
 		switch (id) {
 			case Item.AIR:
-			case Item.STICK:
-				if (!player.hasPermission("money.permission.sland." + (id == Item.AIR ? "buy" : "free"))) {
+				if (!player.hasPermission("money.permission.sland.buy")) {
 					player.sendMessage(this.plugin.translateMessage("event.no.permission"));
 					return;
 				}
 
 				//buy land
 				if (land.isOwned()) {
-					block.getLevel().setBlock(block, Block.get(Block.AIR));
 					player.sendMessage(this.plugin.translateMessage("already.bought"));
 					return;
 				}
 
 				if (temp.remove(hash)) {
-					if (id == Item.STICK) {
-						land.setFree(true);
-					}
 					if (this.plugin.buyLand(land, player)) {
 						player.sendMessage(this.plugin.translateMessage("buy.success"));
 					} else {
@@ -161,6 +156,10 @@ public final class MoneySLandEventListener implements Listener {
 				}
 				break;
 			default:
+				if (land.isOwned()) {
+					player.sendMessage(this.plugin.translateMessage("already.bought"));
+					return;
+				}
 				StringAligner aligner = new StringAligner(this.plugin.calculatePrice(player, land), Money.getInstance().getMoney(player));
 
 				player.sendMessage(this.plugin.translateMessage("land.info",
@@ -170,8 +169,6 @@ public final class MoneySLandEventListener implements Listener {
 						"currency", Money.getInstance().getCurrency1(),
 						"money", aligner.another())
 				);
-
-				player.sendMessage(event.getPlayer().hasPermission("money.permission.sland.free") ? this.plugin.translateMessage("make-free") : "");
 		}
 
 	}

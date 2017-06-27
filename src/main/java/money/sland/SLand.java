@@ -39,7 +39,7 @@ public final class SLand {
 				data.getInt("id", -1),
 				Range.fromString(data.getString("x", null)),
 				Range.fromString(data.getString("z", null)),
-				data.getString("player", null),
+				data.getString("owner", null),
 				data.containsKey("invitees") ? data.getStringList("invitees") : null,
 				data.getLong("time", -1),
 				data.getBoolean("free"),
@@ -68,8 +68,6 @@ public final class SLand {
 
 	private final Vector3 shopBlock;
 
-	private boolean free;
-
 	private SLand(int id, Range x, Range z, String owner, Collection<String> invitees, long time, boolean free, String level, Vector3 shopBlock) {
 		Objects.requireNonNull(x);
 		Objects.requireNonNull(z);
@@ -92,21 +90,12 @@ public final class SLand {
 		this.owner = owner;
 		this.invitees = new LinkedHashSet<>(invitees);
 		this.time = time;
-		this.free = free;
 		this.level = level;
 		this.shopBlock = shopBlock;
 	}
 
 	public int getId() {
 		return id;
-	}
-
-	public void setFree(boolean free) {
-		this.free = free;
-	}
-
-	public boolean isFree() {
-		return free;
 	}
 
 
@@ -123,7 +112,6 @@ public final class SLand {
 				put("invitees", new ArrayList<>(invitees));
 				put("time", time);
 				put("x", x.toString());
-				put("free", free);
 				put("z", z.toString());
 				put("shopBlock", shopBlock.toString());
 			}
@@ -202,12 +190,12 @@ public final class SLand {
 	 *
 	 * @param owner the owner's name
 	 *
-	 * @return TRUE on success, FALSE on this land has already been owned
+	 * @return TRUE always
 	 */
 	public boolean setOwner(String owner) {
-		if (this.isOwned()) {
-			return false;
-		}
+		//if (this.isOwned()) {
+		//	return false;
+		//}
 		this.owner = owner;
 		MoneySLand.getInstance().getModifiedLandPool().add(this);
 		return true;
@@ -219,7 +207,7 @@ public final class SLand {
 	 * @return if this land has owner
 	 */
 	public boolean isOwned() {
-		return !isFree()&& getOwner() != null && !getOwner().equals("");
+		return getOwner() != null && !getOwner().isEmpty();
 	}
 
 	/**
@@ -232,7 +220,7 @@ public final class SLand {
 	}
 
 	/**
-	 * Adds a invitee
+	 * Adds an invitee
 	 *
 	 * @param player player's name
 	 *
@@ -248,14 +236,13 @@ public final class SLand {
 		if (event.isCancelled()) {
 			return false;
 		}
-		MoneySLand.getInstance().getModifiedLandPool().add(this);
 		this.invitees.add(player);
 		MoneySLand.getInstance().getModifiedLandPool().add(this);
 		return true;
 	}
 
 	/**
-	 * Removes a invitee
+	 * Removes an invitee
 	 *
 	 * @param player player's name
 	 *
@@ -295,10 +282,9 @@ public final class SLand {
 	 * @return TRUE on {@code player} can modify this land, otherwise FALSE
 	 */
 	public boolean testPermission(Player player, PermissionType type) {
-		return !isFree()
-		       && (getOwner().equalsIgnoreCase(player.getName())
-		           || this.isInvited(player.getName())
-		           || player.hasPermission("money.permission.sland." + this.getTime() + "." + type.stringValue()));
+		return getOwner().equalsIgnoreCase(player.getName())
+		       || this.isInvited(player.getName())
+		       || player.hasPermission("money.permission.sland." + this.getId() + "." + type.stringValue());
 	}
 
 }

@@ -19,7 +19,7 @@ public enum PermissionType {
 	 * @see PlayerInteractEvent
 	 * @see MoneySLandEventListener#permissionChecker(PlayerInteractEvent)
 	 */
-	TOUCH("touch", "money.permission.sland.modify.touch"),
+	TOUCH("interact", "money.permission.sland.modify.interact"),
 
 	/**
 	 * @see BlockBreakEvent

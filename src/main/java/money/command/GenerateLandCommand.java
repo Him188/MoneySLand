@@ -18,7 +18,10 @@ public class GenerateLandCommand extends SLandCommand implements CommandExecutor
 	public GenerateLandCommand(String name, MoneySLand owner) {
 		super(name, owner);
 
-		this.setPermission("money.command.generateland");
+		this.setPermission(
+				"money.command.sland;" +
+				"money.command.sland.generateland"
+		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.generateland.usage"));
 		this.setDescription(owner.translateMessage("commands.generateland.description"));
@@ -45,16 +48,18 @@ public class GenerateLandCommand extends SLandCommand implements CommandExecutor
 		}
 
 		Map<String, Object> settings = new HashMap<>();
+		boolean useDefaultSettings = true;
 		if (args.length == 2) {
 			settings = getPlugin().loadGeneratorSettings(args[1]);
 			if (settings.isEmpty()) {
 				sender.sendMessage(getPlugin().translateMessage("commands.generateland.name-invalid", "level", args[0], "file", args[1]));
 				return true;
 			}
+			useDefaultSettings = false;
 		}
 
 		if (Server.getInstance().generateLevel(args[0], new java.util.Random().nextLong(), SLandGenerator.class, settings)) {
-			sender.sendMessage(getPlugin().translateMessage(settings.isEmpty() ? "commands.generateland.success" : "commands.generateland.success.with.settings",
+			sender.sendMessage(getPlugin().translateMessage(useDefaultSettings ? "commands.generateland.success" : "commands.generateland.success.with.settings",
 					"level", args[0])
 			);
 		} else {
