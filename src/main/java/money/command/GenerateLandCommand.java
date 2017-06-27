@@ -14,11 +14,11 @@ import java.util.Map;
 
 /**
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
-public class GenerateLandCommand extends PluginCommand<MoneySLand> implements CommandExecutor {
+public class GenerateLandCommand extends SLandCommand implements CommandExecutor {
 	public GenerateLandCommand(String name, MoneySLand owner) {
 		super(name, owner);
+
 		this.setPermission("money.command.generateland");
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.generateland.usage"));

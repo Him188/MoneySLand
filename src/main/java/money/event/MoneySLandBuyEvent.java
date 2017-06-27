@@ -7,7 +7,6 @@ import money.sland.SLand;
 
 /**
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
 public class MoneySLandBuyEvent extends MoneySLandEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();

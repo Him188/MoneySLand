@@ -11,6 +11,9 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
 import money.command.GenerateLandCommand;
+import money.command.GoToLandCommand;
+import money.command.IdleLandCommand;
+import money.command.SLandCommand;
 import money.event.MoneySLandBuyEvent;
 import money.event.MoneySLandOwnerChangeEvent;
 import money.event.MoneySLandPriceCalculateEvent;
@@ -20,11 +23,11 @@ import money.sland.SLandPool;
 import money.utils.SLandUtils;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 /**
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
 public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	private static MoneySLand instance;
@@ -49,6 +52,13 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 	private TaskHandler savingTask;
 
+	private static final Map<String, Class<? extends SLandCommand>> COMMAND_CLASSES = new HashMap<String, Class<? extends SLandCommand>>() {
+		{
+			put("genarate", GenerateLandCommand.class);
+			put("gotoland", GoToLandCommand.class);
+			put("idleland", IdleLandCommand.class);
+		}
+	};
 
 	@Override
 	public void onLoad() {
@@ -83,10 +93,18 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 			getLogger().critical("Could not load language file!! Please delete language file or fix bugs in it");
 		}
 
-		String command = getConfig().getString("generator-command", null);
-		if (command != null && !command.isEmpty()) { //for disable command
-			Server.getInstance().getCommandMap().register(command, new GenerateLandCommand(command, this));
-		} // TODO: 2017/6/27 other commands
+		COMMAND_CLASSES.forEach((name, cmdClass) -> {
+			String command = getConfig().getString(name, null);
+			if (command != null && !command.isEmpty()) { //for disable command
+				try {
+					Constructor<? extends SLandCommand> constructor = cmdClass.getConstructor(String.class, MoneySLand.class);
+					constructor.setAccessible(true);
+					Server.getInstance().getCommandMap().register(command, constructor.newInstance(command, this));
+				} catch (Exception e) {
+					return;
+				}
+			}
+		});
 
 		if (eventListener == null) { //for reload
 			eventListener = new MoneySLandEventListener(this);

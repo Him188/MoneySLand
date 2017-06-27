@@ -14,20 +14,21 @@ import money.utils.Range;
 import money.utils.RangeBlockPlacer;
 import money.utils.SingleBlockPlacer;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 /**
  * SLand 世界生成器
  *
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
 public class SLandGenerator extends Generator {
-	public static String[] GENERATOR_NAMES = {
+	public static final String[] GENERATOR_NAMES = {
+			"sland", //第一个值会被作为默认生成器名字(使用指令创建地皮时)
 			"land",
-			"sland",
 			"地皮",
-			"plot"
+			"plot",
+			"moneysland"
 	};
 
 	/**
@@ -36,6 +37,9 @@ public class SLandGenerator extends Generator {
 	public static Map<String, Object> DEFAULT_SETTINGS;
 
 	public static void setDefaultSettings(Map<String, Object> defaultSettings) {
+		if (DEFAULT_SETTINGS != null) {
+			throw new RuntimeException("default settings is already set");
+		}
 		DEFAULT_SETTINGS = Collections.unmodifiableMap(defaultSettings);
 	}
 
@@ -341,7 +345,7 @@ public class SLandGenerator extends Generator {
 
 	@Override
 	public String getName() {
-		return "sland";
+		return GENERATOR_NAMES[0];
 	}
 
 	@Override

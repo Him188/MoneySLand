@@ -4,7 +4,6 @@ import money.sland.SLand;
 
 /**
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
 public abstract class MoneySLandEvent extends MoneyPluginEvent {
     public SLand getLand() {

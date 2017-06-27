@@ -43,27 +43,35 @@ public class GoToLandCommand extends SLandCommand implements CommandExecutor {
 
 		switch (args.length) {
 			case 0:
-				return false;//send usage
+				for (SLand land : this.getPlugin().getLandPool().values()) {
+					if (land.getOwner().equals(sender.getName())) {
+						((Player) sender).teleport(land.getShopBlock());
+						sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.success"));
+						return true;
+					}
+				}
+				sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.no-anyone"));
+				return true;
 			case 1:
 				int id;
 				try {
 					id = Integer.parseInt(args[0]);
 				} catch (NumberFormatException e) {
-					sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.level-invalid",
+					sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.id-invalid",
 							"id", args[0]
 					));
 					return true;
 				}
 				SLand land = this.getPlugin().getLandPool().get(id);
 				if (land == null) {
-					sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.id-invalid",
+					sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.id-invalid",
 							"id", args[0]
 					));
 					return true;
 				}
 
 				((Player) sender).teleport(land.getShopBlock());
-				sender.sendMessage(this.getPlugin().translateMessage("commands.idleland.success"));
+				sender.sendMessage(this.getPlugin().translateMessage("commands.gotoland.success"));
 				return true;
 			default:
 				return false;

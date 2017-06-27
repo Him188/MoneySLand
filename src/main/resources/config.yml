@@ -16,5 +16,13 @@ pricePerSquare: 100
 save-tiks: 1200
 
 # 生成地皮的指令
-# Command for generating level
-generator-command: newland
+# Command for generating a new land level
+generate-command: newland
+
+# 生成地皮的指令
+# Command for go to a land which is owned by oneself
+gotoland-command: gotoland
+
+# 传送到空闲地皮(没被购买的地皮)的指令
+# Command for teleporting to an idle land(which is not owned)
+idle-command: idle
