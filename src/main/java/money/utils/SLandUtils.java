@@ -1,6 +1,7 @@
 package money.utils;
 
 import cn.nukkit.math.Vector3;
+import money.MoneySLand;
 
 import java.io.*;
 import java.util.HashMap;
@@ -100,4 +101,35 @@ public final class SLandUtils {
 		}
 		return false;
 	}
+
+	public static Map<String, Object> fromPreset(String preset) {
+		if (preset.isEmpty()) {
+			return new HashMap<>();
+		}
+		Map<String, Object> map = new HashMap<>();
+		for (String s : preset.split(";")) {
+			String[] key_value = s.split(":");
+			try {
+				map.put(key_value[0], key_value[1]);
+			} catch (Exception e) {
+				MoneySLand.getInstance().getLogger().warning("Error while loading generator settings (" + preset + ")", e);
+			}
+		}
+		return map;
+	}
+
+	public static String toPreset(Map<String, Object> options) {
+		StringBuilder stringBuilder = new StringBuilder();
+		options.forEach((key, value) -> {
+			if (key.equals("preset")) {
+				return;
+			}
+			stringBuilder.append(key);
+			stringBuilder.append(":");
+			stringBuilder.append(value);
+			stringBuilder.append(";");
+		});
+		return stringBuilder.toString();
+	}
+
 }

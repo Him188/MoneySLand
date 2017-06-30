@@ -25,7 +25,7 @@
   2. 玩家空手点击地皮边缘的下节反应核，并确认购买
 
 - **玩家传送地皮**
-  1. 玩家使用 `/gotoland [id]` 传送到自己已拥有的一个地皮
+  1. 玩家使用 `/gotoland [id]` 传送到地皮
 
 ### 世界配置
 
@@ -44,29 +44,59 @@
 
 --------
 
+### 指令
+
+所有指令均可在 "config.yml" 中修改  
+此表中 "权限" 不包含父权限.
+
+|    指令名     | 参数                          |                  说明                   |                                权限                                 |
+|:------------:|:-----------------------------|:--------------------------------------:|:------------------------------------------------------------------:|
+| generateland | <name> \[settings_filename\] |               创建地皮世界               |                  money.command.sland.generateland                  |
+|   gotoland   | <id>                         |            传送到任意ID的地皮             |                    money.command.sland.gotoland                    |
+|   idleland   | \[level\]                    |          传送到一个未被购买的地皮          |                    money.command.sland.idleland                    |
+|    landid    |                              |           查看所在位置的地皮的ID           |                     money.command.sland.landid                     |
+|   sellland   | \[id\]                       |        出售所在的地皮或指定ID的地皮         |  money.command.sland.sellland;money.command.sland.sellland.others  |
+|  clearland   | \[id\]                       | 将所在的地皮或指定ID的地皮清空并还原到初始状态 | money.command.sland.clearland;money.command.sland.clearland.others |
+|    myland    | \[player\]                   |       查看自己或他人已拥有的地皮列表        |    money.command.sland.myland;money.command.sland.myland.others    |
+
+
+--------
+
 ### 权限
 
 你可以通过修改玩家拥有的权限，来实现自定义特权等特性
 
 **指令权限**
 
-|              权限名               |       用处        |    默认拥有者    |
-|:--------------------------------:|:----------------:|:---------------:|
-| money.command.sland.generateland |    创建地皮世界    | 管理员(包括控制台) |
-|   money.command.sland.gotoland   | 传送到自己拥有的地皮 |     所有玩家     |
-|   money.command.sland.idleland   | 传送到未被购买的地皮 |     所有玩家     |
+
+|                权限名                 |               说明               |    默认拥有者     |
+|:------------------------------------:|:-------------------------------:|:---------------:|
+|         money.command.sland          |       所有指令的权限的父权限        | 管理员(包括控制台) |
+|   money.command.sland.generateland   |           创建地皮世界            | 管理员(包括控制台) |
+|     money.command.sland.gotoland     |         传送到任意ID的地皮         |     所有玩家     |
+|     money.command.sland.idleland     |        传送到未被购买的地皮         |     所有玩家     |
+|      money.command.sland.lanid       |        查看所在位置的地皮ID        |     所有玩家     |
+|     money.command.sland.sellland     |     出售所在的地皮或指定ID的地皮     |     所有玩家     |
+| money.command.sland.sellland.others  |          出售任意ID的地皮          | 管理员(包括控制台) |
+|    money.command.sland.clearland     | 将自己已拥有的地皮清空并还原到初始状态 |     所有玩家     |
+| money.command.sland.clearland.others |  将任意ID的地皮清空并还原到初始状态   | 管理员(包括控制台) |
+|      money.command.sland.myland      |      查看自己已拥有的地皮列表       |     所有玩家     |
+|  money.command.sland.myland.others   |     查看任意一名玩家已拥有的地皮     | 管理员(包括控制台) |
+
 
 **操作权限**
 
-|                  权限名                   |             用处              | 默认拥有者 |
-|:----------------------------------------:|:----------------------------:|:---------:|
-|   money.permission.sland.modify.interact    |  在自己没有权限的地皮上点击方块   |   管理员   |
-|   money.permission.sland.modify.place    |  在自己没有权限的地皮上放置方块   |   管理员   |
-|   money.permission.sland.modify.break    |  在自己没有权限的地皮上拆除方块   |   管理员   |
-| money.permission.sland.{LandId}.interact | 在id为 {LandId} 的地皮上点击方块 |    无     |
-|  money.permission.sland.{LandId}.place   | 在id为 {LandId} 的地皮上放置方块 |    无     |
-|  money.permission.sland.{LandId}.break   | 在id为 {LandId} 的地皮上拆除方块 |    无     |
-|        money.permission.sland.buy        |           购买地皮            |  所有玩家  |
+|                  权限名                   |             说明              |    默认拥有者    |
+|:----------------------------------------:|:----------------------------:|:---------------:|
+|          money.permission.sland          |       所有操作权限的父权限       | 管理员(包括控制台) |
+|      money.permission.sland.modify       |       modify.* 的父权限       | 管理员(包括控制台) |
+|  money.permission.sland.modify.interact  |  在自己没有权限的地皮上点击方块   |      管理员      |
+|   money.permission.sland.modify.place    |  在自己没有权限的地皮上放置方块   |      管理员      |
+|   money.permission.sland.modify.break    |  在自己没有权限的地皮上拆除方块   |      管理员      |
+| money.permission.sland.{LandId}.interact | 在id为 {LandId} 的地皮上点击方块 |       无        |
+|  money.permission.sland.{LandId}.place   | 在id为 {LandId} 的地皮上放置方块 |       无        |
+|  money.permission.sland.{LandId}.break   | 在id为 {LandId} 的地皮上拆除方块 |       无        |
+|        money.permission.sland.buy        |           购买地皮            |     所有玩家     |
 
 --------
 

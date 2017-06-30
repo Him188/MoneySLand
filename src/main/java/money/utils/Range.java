@@ -1,6 +1,7 @@
 package money.utils;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Base range
@@ -25,12 +26,16 @@ public class Range {
 		return min;
 	}
 
+	//用于 generateChunk, number可能为负数而 min 和 max 永远为正数
 	public boolean inRange(int number) {
-		return (number >= min && number < max) || (Math.abs(number) >= min && Math.abs(number) < max);
+		return (number >= min && number < max) || (number >= max && number < min)
+		       || ((number = Math.abs(number)) >= min && number < max) || (number >= max && number < min);
 	}
 
+	//用于 populateChunk, number可能为负数, 但实际需求, 不需要abs.
 	public boolean realInRange(int number) {
-		return (number >= min && number < max) || (Math.abs(number) >= min && Math.abs(number) < max);
+		return (number >= min && number <= max) || (number >= max && number <= min);
+		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
 	}
 
 	public int getLength() {
@@ -49,6 +54,13 @@ public class Range {
 	@Override
 	public String toString() {
 		return min + "/" + max;
+	}
+
+	public void forEach(Consumer<? super Integer> action) {
+		Objects.requireNonNull(action);
+		for (int i = this.getMin(); i <= this.getMax(); i++) {
+			action.accept(i);
+		}
 	}
 
 	public static Range fromString(String string) {

@@ -9,24 +9,50 @@ language: "chs"
 # Price per square block
 pricePerSquare: 100
 
-# 保存数据的频率
+# 保存数据计时器的频率
 # 单位 ticks (1s = 20ticks)
-# Period for data saving
+# Period for data saving task
 # Unit is ticks (1s = 20ticks)
 save-tiks: 1200
 
 # 生成地皮的指令
+# 填写 "" 禁用指令.
 # Command for generating a new land level
-generate-command: newland
+# Sets "" to disable this command
+generate-command: "newland"
 
 # 生成地皮的指令
+# 填写 "" 禁用指令.
 # Command for go to a land which is owned by oneself
-gotoland-command: gotoland
+# Sets "" to disable this command
+gotoland-command: "gotoland"
 
 # 传送到空闲地皮(没被购买的地皮)的指令
+# 填写 "" 禁用指令.
 # Command for teleporting to an idle land(which is not owned)
-idleland-command: idleland
+# Sets "" to disable this command
+idleland-command: "idleland"
 
 # 查看所在位置的地皮的 ID 的指令
+# 填写 "" 禁用指令.
 # Command for querying land id around player
-landid-command: landid
+# Sets "" to disable this command
+landid-command: "landid"
+
+# 出售所在的地皮或指定ID的地皮的指令
+# 填写 "" 禁用指令.
+# Command for selling land
+# Sets "" to disable this command
+sellland-command: "sellland"
+
+# 将自己已拥有的地皮清空并还原到初始状态的指令
+# 填写 "" 禁用指令.
+# Command for clearing land and regenerate land which player owned
+# Sets "" to disable this command
+clearland-command: "clearland"
+
+# 查看自己已拥有的地皮列表的指令
+# 填写 "" 禁用指令.
+# Command for querying lands which player owned
+# Sets "" to disable this command
+myland-command: "myland"

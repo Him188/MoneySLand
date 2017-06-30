@@ -62,6 +62,7 @@ public final class SLand {
 	private final int id;
 
 	private final String level;
+	private Level levelInstance;
 	private String owner;
 	private final LinkedHashSet<String> invitees;
 	private final long time;
@@ -128,6 +129,17 @@ public final class SLand {
 	}
 
 	/**
+	 * Gets the level instance
+	 *
+	 * @return the level instance
+	 *
+	 * @see Server#getLevelByName(String)
+	 */
+	public Level getLevelInstance() {
+		return this.levelInstance == null ? this.levelInstance = Server.getInstance().getLevelByName(this.level) : this.levelInstance;
+	}
+
+	/**
 	 * Returns if the {@code position} is included in ths land
 	 *
 	 * @param position position
@@ -146,7 +158,7 @@ public final class SLand {
 	 * @return square in square blocks
 	 */
 	public int getSquare() {
-		return x.getRealLength() * z.getRealLength();
+		return Math.abs(x.getRealLength() * z.getRealLength());
 	}
 
 	/**
@@ -287,4 +299,21 @@ public final class SLand {
 		       || player.hasPermission("money.permission.sland." + this.getId() + "." + type.stringValue());
 	}
 
+	public void clear() {
+		this.getX().forEach(x -> this.getZ().forEach(z -> {
+
+		}));
+	}
+
+	/**
+	 * Regenerate this {@link SLand}.
+	 * This method should be called after calling {@link SLand#clear()}
+	 *
+	 * @return TRUE on success, FALSE on failed
+	 */
+	public boolean regenerate() {
+
+
+		return false;
+	}
 }

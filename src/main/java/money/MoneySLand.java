@@ -42,6 +42,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	private SLandPool modifiedLands;
 	private Config landConfig;
 
+
 	private int id;
 
 	private LinkedHashMap<String, Object> language;
@@ -62,7 +63,6 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	public void onLoad() {
 		//当地形生成器已注册时, 方法返回 false
 		//服务器重启不会清空地形生成器
-
 		reloadGeneratorDefaultSettings();
 		for (String name : SLandGenerator.GENERATOR_NAMES) {
 			Generator.addGenerator(SLandGenerator.class, name, Generator.TYPE_INFINITE);
@@ -198,7 +198,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 	private void save() {
 		if (modifiedLands.size() == 0) {
-			this.getLogger().debug("No land changes detected. Saving has benn intercepted.");
+			this.getLogger().debug("No land changes detected.");
 			return;
 		}
 		this.getLogger().debug("Saving " + modifiedLands.size() + " lands...");

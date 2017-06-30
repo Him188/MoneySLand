@@ -3,17 +3,14 @@ package money.generator;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.Position;
+import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
-import com.google.common.collect.Maps;
 import money.MoneySLand;
 import money.sland.SLand;
-import money.utils.FrameRangeBlockPlacer;
-import money.utils.Range;
-import money.utils.RangeBlockPlacer;
-import money.utils.SingleBlockPlacer;
+import money.utils.*;
 
 import java.util.*;
 
@@ -23,6 +20,21 @@ import java.util.*;
  * @author Him188 @ MoneySLand Project
  */
 public class SLandGenerator extends Generator {
+	public SLandGenerator() {
+		this(new HashMap<>());
+	}
+
+	public SLandGenerator(Map<String, Object> options) {
+		Object obj;
+		if (options != null && (obj = options.get("preset")) != null && obj instanceof String) {
+			this.options = Optional.ofNullable(SLandUtils.fromPreset((String) obj)).filter(o -> !(o.size() == DEFAULT_SETTINGS.size() + 1)).orElse(new HashMap<>
+					(DEFAULT_SETTINGS));
+		} else {
+			this.options = Optional.ofNullable(options).filter(o -> !(o.size() == DEFAULT_SETTINGS.size() + 1)).orElse(new HashMap<>(DEFAULT_SETTINGS));
+			this.options.put("preset", SLandUtils.toPreset(this.options));
+		}
+	}
+
 	public static final String[] GENERATOR_NAMES = {
 			"sland", //第一个值会被作为默认生成器名字(使用指令创建地皮时)
 			"land",
@@ -214,19 +226,13 @@ public class SLandGenerator extends Generator {
 
 	private static Block getBlock(Map<String, Object> map, String name, Block defaultBlock) {
 		try {
-			Block block = Block.get(toInt(map.getOrDefault(name + "Id", defaultBlock.getId())), toInt(map.getOrDefault(name + "Damage", defaultBlock.getDamage())));
+			String var = map.getOrDefault(name, defaultBlock.getId() + ":" + defaultBlock.getDamage()).toString();
+			String[] vars = var.split(":");
+			Block block = Block.get(Integer.parseInt(vars[0]), vars.length == 2 ? toInt(vars[1]) : 0);
 			return block == null ? defaultBlock : block;
 		} catch (Exception e) {
 			return defaultBlock;
 		}
-	}
-
-	public SLandGenerator() {
-		this(new HashMap<>());
-	}
-
-	public SLandGenerator(Map<String, Object> options) {
-		this.options = Optional.ofNullable(options).filter(o -> !o.isEmpty()).orElse(Maps.newHashMap(DEFAULT_SETTINGS));
 	}
 
 
@@ -236,13 +242,18 @@ public class SLandGenerator extends Generator {
 	public void generateChunk(int chunkX, int chunkZ) {
 		BaseFullChunk chunk = this.level.getChunk(chunkX, chunkZ);
 		if (this.broken) {
+			for (int _x = 0; _x < 16; _x++) {
+				for (int _z = 0; _z < 16; _z++) {
+					for (int _y = 0; _y < this.groundHeight; _y++) {
+						chunk.setBlock(_x, _y, _z, Block.BEDROCK, 0);
+					}
+				}
+			}
 			return;
 		}
 
 		int realChunkX = chunkX * 16;
 		int realChunkZ = chunkZ * 16;
-
-		int id = (realChunkX % totalWidth) >> 4 | (realChunkZ % totalWidth);
 
 		int x, z, y; // TODO: 2017/5/16 主动放置方块而不是被动判断范围
 		for (int _x = 0; _x < 16; _x++) { //16 不能用 totalWidth 替换, 因为 chunk 的大小只有 16
@@ -269,10 +280,10 @@ public class SLandGenerator extends Generator {
 
 	@Override
 	public void populateChunk(int chunkX, int chunkZ) {
-		BaseFullChunk chunk = this.level.getChunk(chunkX, chunkZ);
 		if (this.broken) {
 			return;
 		}
+		BaseFullChunk chunk = this.level.getChunk(chunkX, chunkZ);
 
 		int realChunkX = chunkX * 16;
 		int realChunkZ = chunkZ * 16;
@@ -280,6 +291,7 @@ public class SLandGenerator extends Generator {
 		int id = (realChunkX % totalWidth) >> 4 | (realChunkZ % totalWidth);
 
 		int x, z, y; // TODO: 2017/5/16 主动放置方块而不是被动判断范围
+
 		for (int _x = 0; _x < 16; _x++) { //16 不能用 totalWidth 替换, 因为 chunk 的大小只有 16
 			x = (_x + realChunkX) % totalWidth;
 			for (int _z = 0; _z < 16; _z++) {
@@ -289,15 +301,32 @@ public class SLandGenerator extends Generator {
 					if (this.frameBlockLeft.inRange(x) && this.frameBlockLeft.inRange(z)) {
 						//领地方块
 						this.shopPlacer.placeBlock(chunk, _x, this.groundHeight + 2, _z);
-						if (MoneySLand.getInstance().getLand(new Position(1 + realChunkX + _x, 0, 1 + realChunkZ + _z, chunk.getProvider().getLevel())) !=
+						int minX, minZ;
+						minX = realChunkX + _x;
+						minZ = realChunkZ + _z;
+						if (MoneySLand.getInstance().getLand(new Position(minX, 0, minZ, chunk.getProvider().getLevel())) !=
 						    null) {
 							continue label;
 						}
-						int temp;
+						/*
+						              z
+						              ↑
+						             5 *
+						             4 *
+						             3 * z+
+						             2 *
+						             1 *      x+
+						 ***************************→ x
+						         x-    * 1 2 3 4 5
+						               *
+						             z-*
+						               *
+						               *
+						 */
 						SLand land = SLand.newInitialLand(
 								MoneySLand.getInstance().getLandPool().nextLandId(),
-								new Range(temp = 1 + realChunkX + _x, temp + this.groundWidth.getLength()),
-								new Range(temp = 1 + realChunkZ + _z, temp + this.groundWidth.getLength()),
+								new Range(minX, minX + (x < 0 ? -1 : 1) * this.groundWidth.getRealLength()),
+								new Range(minZ, minZ + (x < 0 ? -1 : 1) * this.groundWidth.getRealLength()),
 								chunk.getProvider().getLevel().getFolderName(), //only can be used in populateChunk
 								new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ)
 						);
@@ -309,6 +338,15 @@ public class SLandGenerator extends Generator {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param chunk chunk
+	 * @param x     in range 0-15
+	 * @param z     in range 0-15
+	 */
+	public void generate(FullChunk chunk, int x, int z) {
+
 	}
 
 	/*

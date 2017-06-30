@@ -56,6 +56,9 @@ public final class MoneySLandEventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void permissionChecker(PlayerInteractEvent event) {
+		if (event.getItem().getId() == Item.STICK) {
+			event.getPlayer().sendMessage(event.getBlock().getLocation().toString());
+		}
 		try {
 			if (isAction(METHOD.invoke(event))
 			    && !this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.TOUCH)) {
@@ -98,7 +101,7 @@ public final class MoneySLandEventListener implements Listener {
 	private boolean testPermission(Player player, Position position, PermissionType type) {
 		return !SLandUtils.arrayContains(SLandGenerator.GENERATOR_NAMES, position.level.getProvider().getGenerator())
 		       || player.hasPermission(type.getPermission())
-		       || Optional.ofNullable(this.plugin.getLand(position)).map((land) -> land.testPermission(player, type)).orElse(true);
+		       || Optional.ofNullable(this.plugin.getLand(position)).map((land) -> land.testPermission(player, type)).orElse(false);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
