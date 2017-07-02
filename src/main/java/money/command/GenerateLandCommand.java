@@ -28,7 +28,7 @@ public class GenerateLandCommand extends SLandCommand implements CommandExecutor
 		this.setDescription(owner.translateMessage("commands.generateland.description"));
 		this.setCommandParameters(new HashMap<String, CommandParameter[]>() {
 			{
-				put("1", new CommandParameter[]{
+				put("2args", new CommandParameter[]{
 						new CommandParameter("name", CommandParameter.ARG_TYPE_RAW_TEXT, false),
 						new CommandParameter("settings_filename", CommandParameter.ARG_TYPE_RAW_TEXT, true)
 				});

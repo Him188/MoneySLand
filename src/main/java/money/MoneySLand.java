@@ -278,13 +278,6 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		return null;
 	}
 
-	/**
-	 * Gets all of the lands that {@code player} had
-	 *
-	 * @param player player's name
-	 *
-	 * @return all of the lands that {@code player} had
-	 */
 	public SLand[] getLands(String player) {
 		List<SLand> list = new ArrayList<>();
 		for (SLand land : lands.values()) {
@@ -305,7 +298,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 				return false;
 			}
 
-			MoneySLandOwnerChangeEvent ev = new MoneySLandOwnerChangeEvent(land, land.getOwner(), player.getName(), MoneySLandOwnerChangeEvent.Cause.BUY);
+			MoneySLandOwnerChangeEvent ev = new MoneySLandOwnerChangeEvent(land, player, MoneySLandOwnerChangeEvent.Cause.BUY);
 			Server.getInstance().getPluginManager().callEvent(ev);
 			if (event.isCancelled()) {
 				return false;
@@ -327,7 +320,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 	}
 
 	public float calculatePrice(Player player, SLand land) {
-		float price = (float) this.getConfig().getDouble("pricePerSquare", 0) * land.getSquare();
+		float price = land.getBuyingPrice() * land.getSquare();
 
 		MoneySLandPriceCalculateEvent event = new MoneySLandPriceCalculateEvent(land, player, price);
 		Server.getInstance().getPluginManager().callEvent(event);

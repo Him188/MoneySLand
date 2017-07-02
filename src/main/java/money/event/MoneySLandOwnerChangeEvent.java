@@ -1,8 +1,11 @@
 package money.event;
 
+import cn.nukkit.Player;
 import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.HandlerList;
 import money.sland.SLand;
+
+import java.util.Objects;
 
 /**
  * @author Him188 @ MoneySLand Project
@@ -16,37 +19,31 @@ public class MoneySLandOwnerChangeEvent extends MoneySLandEvent implements Cance
 
 
 	private final Cause cause;
-	private final String originalOwner;
 
-	private String newOwner;
+	private Player newOwner;
 
 	public enum Cause{
 		BUY,
 		TRANSFER,
+		SELL,
 		PLUGIN, // for other plugins
-		FREE //newOwner = null
 	}
 
-	public MoneySLandOwnerChangeEvent(SLand land, String originalOwner, String newOwner, Cause cause) {
+	public MoneySLandOwnerChangeEvent(SLand land, Player newOwner, Cause cause) {
 		super(land);
-		this.originalOwner = originalOwner;
-		this.newOwner = newOwner;
-		this.cause = cause;
+		this.newOwner = newOwner; //nullable
+		this.cause = Objects.requireNonNull(cause);
 	}
 
 	public Cause getCause() {
 		return cause;
 	}
 
-	public String getNewOwner() {
+	public Player getNewOwner() {
 		return newOwner;
 	}
 
-	public String getOriginalOwner() {
-		return originalOwner;
-	}
-
-	public void setNewOwner(String newOwner) {
+	public void setNewOwner(Player newOwner) {
 		this.newOwner = newOwner;
 	}
 }

@@ -11,10 +11,9 @@ import money.sland.SLand;
  * 权限类型
  *
  * @author Him188 @ MoneySLand Project
- * @see SLand#testPermission(Player, PermissionType)
- * @since MoneySLand 1.0.0
+ * @see SLand#testPermission(Player, SLandPermissionType)
  */
-public enum PermissionType {
+public enum SLandPermissionType {
 	/**
 	 * @see PlayerInteractEvent
 	 * @see MoneySLandEventListener#permissionChecker(PlayerInteractEvent)
@@ -36,7 +35,7 @@ public enum PermissionType {
 	private final String stringValue;
 	private final String permission;
 
-	PermissionType(String stringValue, String permission) {
+	SLandPermissionType(String stringValue, String permission) {
 		this.stringValue = stringValue;
 		this.permission = permission;
 	}

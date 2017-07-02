@@ -26,8 +26,8 @@ public class GoToLandCommand extends SLandCommand implements CommandExecutor {
 		this.setDescription(owner.translateMessage("commands.gotoland.description"));
 		this.setCommandParameters(new HashMap<String, CommandParameter[]>() {
 			{
-				put("1", new CommandParameter[]{
-						new CommandParameter("id", CommandParameter.ARG_TYPE_INT, true),
+				put("1arg", new CommandParameter[]{
+						new CommandParameter("land id", CommandParameter.ARG_TYPE_INT, true),
 				});
 			}
 		});

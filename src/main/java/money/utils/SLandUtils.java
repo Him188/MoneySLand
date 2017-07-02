@@ -132,4 +132,11 @@ public final class SLandUtils {
 		return stringBuilder.toString();
 	}
 
+	public static String arrayMerge(String[] array, int start, int length) {
+		StringBuilder str = new StringBuilder();
+		for (int i = start; i < length; i++) {
+			str.append(array[i]).append(" ");
+		}
+		return str.toString();
+	}
 }

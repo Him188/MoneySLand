@@ -2,14 +2,20 @@ package money.sland;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockAir;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.generator.task.GeneratorPool;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.ConfigSection;
+import money.CurrencyType;
 import money.MoneySLand;
 import money.event.MoneySLandInviteeChangeEvent;
-import money.utils.PermissionType;
+import money.generator.SLandGenerator;
 import money.utils.Range;
+import money.utils.SLandPermissionType;
 import money.utils.SLandUtils;
 
 import java.util.*;
@@ -17,7 +23,7 @@ import java.util.*;
 /**
  * @author Him188 @ MoneySLand Project
  */
-public final class SLand {
+public final class SLand { // TODO: 2017/7/2 javadoc
 	public static SLand newLand(int id, Range x, Range z, String owner, Collection<String> invitees, long time, boolean free, String level, Vector3 shopBlock) {
 		return new SLand(id, x, z, owner, invitees, time, free, level, shopBlock);
 	}
@@ -68,6 +74,11 @@ public final class SLand {
 	private final long time;
 
 	private final Vector3 shopBlock;
+
+
+	private CurrencyType type = null;
+	private float sellingPrice = -1;
+	private float buyingPrice = -1;
 
 	private SLand(int id, Range x, Range z, String owner, Collection<String> invitees, long time, boolean free, String level, Vector3 shopBlock) {
 		Objects.requireNonNull(x);
@@ -188,6 +199,11 @@ public final class SLand {
 		return z;
 	}
 
+	public boolean isFrame(Vector3 position) {
+		return (this.getX().min == position.getFloorX() || this.getX().max == position.getFloorX()) && this.getZ().realInRange(position.getFloorZ())
+		       || (this.getZ().min == position.getFloorZ() || this.getZ().max == position.getFloorZ()) && this.getX().realInRange(position.getFloorX());
+	}
+
 	/**
 	 * Gets the owner's name
 	 *
@@ -195,6 +211,10 @@ public final class SLand {
 	 */
 	public String getOwner() {
 		return owner;
+	}
+
+	public boolean setOwner(Player owner) {
+		return setOwner(owner.getName());
 	}
 
 	/**
@@ -293,27 +313,85 @@ public final class SLand {
 	 *
 	 * @return TRUE on {@code player} can modify this land, otherwise FALSE
 	 */
-	public boolean testPermission(Player player, PermissionType type) {
+	public boolean testPermission(Player player, SLandPermissionType type) {
 		return getOwner().equalsIgnoreCase(player.getName())
 		       || this.isInvited(player.getName())
-		       || player.hasPermission("money.permission.sland." + this.getId() + "." + type.stringValue());
+		       || player.hasPermission("money.permission.sland." + type.stringValue())
+		       || player.hasPermission("money.permission.sland." + type.stringValue() + "." + this.getId());
 	}
 
-	public void clear() {
-		this.getX().forEach(x -> this.getZ().forEach(z -> {
+	private static final Block AIR = new BlockAir();
 
-		}));
+	private final byte[] regeneratorLock = new byte[0];
+
+	/**
+	 * Clears this {@link SLand} (Replace all blocks with {@link BlockAir})
+	 */
+	public void clear() {
+		synchronized (regeneratorLock) {
+			this.getX().forEach(x -> this.getZ().forEach(z -> {
+				for (int y = 0; y < 0xff; y++) {
+					this.getLevelInstance().setBlock(new Vector3(x, y, z), AIR);
+				}
+			}));
+		}
 	}
 
 	/**
-	 * Regenerate this {@link SLand}.
+	 * Regenerates and repopulates this {@link SLand}.
 	 * This method should be called after calling {@link SLand#clear()}
-	 *
-	 * @return TRUE on success, FALSE on failed
 	 */
-	public boolean regenerate() {
+	public void regenerate(boolean putShopBlock) {
+		synchronized (regeneratorLock) {
+			final SLandGenerator generator = (SLandGenerator) GeneratorPool.get(this.getLevelInstance().getId());
+			int groundHeight = Integer.parseInt(generator.getSettings().getOrDefault("groundHeight", SLandGenerator.DEFAULT_SETTINGS.get("groundHeight")).toString());
+			this.getX().forEach(x -> this.getZ().forEach(z -> {
+				int chunkX = x >> 4;
+				int chunkZ = z >> 4;
+				FullChunk chunk = this.getLevelInstance().getChunk(chunkX, chunkZ);
+				for (int y = 0; y < groundHeight; y++) {
+					generator.generate(chunk, chunkX, chunkZ, chunkX * 16, chunkZ * 16, x, y, z);
+				}
+			}));
 
+			if (putShopBlock) {
+				this.getX().forEach(x -> this.getZ().forEach(z -> {
+					int chunkX = x >> 4;
+					int chunkZ = z >> 4;
+					FullChunk chunk = this.getLevelInstance().getChunk(chunkX, chunkZ);
+					for (int y = 0; y < groundHeight; y++) {
+						generator.populate(chunk, chunkX, chunkZ, chunkX * 16, chunkZ * 16, x, y, z, false);
+					}
+				}));
+			}
+		}
+	}
 
-		return false;
+	public SLandGenerator getGenerator() {
+		return (SLandGenerator) GeneratorPool.get(this.getLevelInstance().getId());
+	}
+
+	public float getBuyingPrice() {
+		if (this.buyingPrice == -1) { //SLand被加载时不一定世界也被加载, Generator 不一定能获取到.
+			float price = Float.parseFloat(this.getGenerator().getSettings().getOrDefault("price", SLandGenerator.DEFAULT_SETTINGS.get("price")).toString());
+			return this.buyingPrice = this.getSquare() * price;
+		}
+		return this.buyingPrice;
+	}
+
+	public float getSellingPrice() {
+		if (this.sellingPrice == -1) {
+			float price = Float.parseFloat(this.getGenerator().getSettings().getOrDefault("sellingPrice", SLandGenerator.DEFAULT_SETTINGS.get("sellingPrice")).toString());
+			return this.sellingPrice = this.getSquare() * price;
+		}
+		return this.sellingPrice;
+	}
+
+	public CurrencyType getCurrencyType() {
+		if (type == null) {
+			int type = Integer.parseInt(this.getGenerator().getSettings().getOrDefault("type", SLandGenerator.DEFAULT_SETTINGS.get("type")).toString());
+			return this.type = type == 2 ? CurrencyType.SECOND : CurrencyType.FIRST;
+		}
+		return this.type;
 	}
 }

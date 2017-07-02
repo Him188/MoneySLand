@@ -7,7 +7,6 @@ import java.util.function.Consumer;
  * Base range
  *
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
 public class Range {
 	public final int min;
@@ -32,8 +31,12 @@ public class Range {
 		       || ((number = Math.abs(number)) >= min && number < max) || (number >= max && number < min);
 	}
 
-	//用于 populateChunk, number可能为负数, 但实际需求, 不需要abs.
 	public boolean realInRange(int number) {
+		return (number > min && number < max) || (number > max && number < min);
+		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
+	}
+
+	public boolean realInRangeIncludingAisle(int number) {
 		return (number >= min && number <= max) || (number >= max && number <= min);
 		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
 	}

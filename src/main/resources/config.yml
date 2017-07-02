@@ -5,10 +5,6 @@
 # Language type, DO NOT modify if unnecessary
 language: "chs"
 
-# 每平方格的价格
-# Price per square block
-pricePerSquare: 100
-
 # 保存数据计时器的频率
 # 单位 ticks (1s = 20ticks)
 # Period for data saving task

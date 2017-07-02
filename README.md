@@ -86,17 +86,27 @@
 
 **操作权限**
 
-|                  权限名                   |             说明              |    默认拥有者    |
-|:----------------------------------------:|:----------------------------:|:---------------:|
-|          money.permission.sland          |       所有操作权限的父权限       | 管理员(包括控制台) |
-|      money.permission.sland.modify       |       modify.* 的父权限       | 管理员(包括控制台) |
-|  money.permission.sland.modify.interact  |  在自己没有权限的地皮上点击方块   |      管理员      |
-|   money.permission.sland.modify.place    |  在自己没有权限的地皮上放置方块   |      管理员      |
-|   money.permission.sland.modify.break    |  在自己没有权限的地皮上拆除方块   |      管理员      |
-| money.permission.sland.{LandId}.interact | 在id为 {LandId} 的地皮上点击方块 |       无        |
-|  money.permission.sland.{LandId}.place   | 在id为 {LandId} 的地皮上放置方块 |       无        |
-|  money.permission.sland.{LandId}.break   | 在id为 {LandId} 的地皮上拆除方块 |       无        |
-|        money.permission.sland.buy        |           购买地皮            |     所有玩家     |
+|                   权限名                   |               说明                |    默认拥有者     |
+|:-----------------------------------------:|:--------------------------------:|:---------------:|
+|          money.permission.sland           |         所有操作权限的父权限         | 管理员(包括控制台) |
+|       money.permission.sland.modify       |         modify.* 的父权限         | 管理员(包括控制台) |
+|  money.permission.sland.modify.interact   |    在自己没有权限的地皮上点击方块     |      管理员       |
+|    money.permission.sland.modify.place    |    在自己没有权限的地皮上放置方块     |      管理员       |
+|    money.permission.sland.modify.break    |    在自己没有权限的地皮上拆除方块     |      管理员       |
+|     money.permission.sland.breakshop      |       breakshop.* 的父权限        |        无        |
+| money.permission.sland.breakshop.{Level}  | 破坏名字为{Level}的地皮世界的购买方块 |        无        |
+|     money.permission.sland.breakaisle     |       breakaisle.* 的父权限       |        无        |
+| money.permission.sland.breakaisle.{Level} | 破坏名字为{Level}的地皮世界的过道方块 |        无        |
+|     money.permission.sland.berakframe     |       berakframe.* 的父权限       |        无        |
+| money.permission.sland.berakframe.{Level} | 破坏名字为{Level}的地皮世界的边框方块 |        无        |
+|      money.permission.sland.interact      |        interact.* 的父权限        |        无        |
+| money.permission.sland.interact.{LandId}  |   在id为 {LandId} 的地皮上点击方块   |        无        |
+|       money.permission.sland.place        |         place.* 的父权限          |        无        |
+|   money.permission.sland.place.{LandId}   |   在id为 {LandId} 的地皮上放置方块   |        无        |
+|       money.permission.sland.break        |         break.* 的父权限          |        无        |
+|   money.permission.sland.break.{LandId}   |   在id为 {LandId} 的地皮上拆除方块   |        无        |
+|        money.permission.sland.buy         |        在所有地皮世界购买地皮        |     所有玩家      |
+|    money.permission.sland.buy.{LandId}    |         在某地皮世界购买地皮         |        无        |
 
 --------
 

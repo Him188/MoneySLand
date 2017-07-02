@@ -1,13 +1,16 @@
 package money.command;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Position;
 import money.MoneySLand;
+import money.event.MoneySLandClearEvent;
 import money.sland.SLand;
+import money.tasks.SLandRegenerateTask;
 
 import java.util.HashMap;
 
@@ -20,14 +23,16 @@ public class ClearLandCommand extends SLandCommand implements CommandExecutor {
 
 		this.setPermission(
 				"money.command.sland;" +
-				"money.command.sland.landid"
+				"money.command.sland.clearland;" +
+				"money.command.sland.clearland.others"
 		);
 		this.setExecutor(this);
-		this.setUsage(owner.translateMessage("commands.landid.usage"));
-		this.setDescription(owner.translateMessage("commands.landid.description"));
+		this.setUsage(owner.translateMessage("commands.clearland.usage"));
+		this.setDescription(owner.translateMessage("commands.clearland.description"));
 		this.setCommandParameters(new HashMap<String, CommandParameter[]>() {
 			{
-				put("0", new CommandParameter[]{
+				put("1arg", new CommandParameter[]{
+						new CommandParameter("land id", CommandParameter.ARG_TYPE_INT, true),
 				});
 			}
 		});
@@ -44,15 +49,46 @@ public class ClearLandCommand extends SLandCommand implements CommandExecutor {
 			return true;
 		}
 
-		SLand land = this.getPlugin().getLand((Position) sender);
-		if (land == null) {
-			sender.sendMessage(this.getPlugin().translateMessage("commands.landid.failed"));
-			return true;
+		SLand land;
+		switch (args.length) {
+			case 0:
+				land = this.getPlugin().getLand((Position) sender);
+				if (land == null) {
+					sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.not-found"));
+					return false;
+				}
+				break;
+			case 1:
+				int id;
+				try {
+					id = Integer.parseInt(args[0]);
+				} catch (NumberFormatException e) {
+					sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.id-invalid",
+							"id", args[0]
+					));
+					return true;
+				}
+				land = this.getPlugin().getLandPool().get(id);
+				if (land == null) {
+					sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.id-invalid",
+							"id", args[0]
+					));
+					return true;
+				}
+				break;
+			default:
+				return false;
 		}
 
-		sender.sendMessage(this.getPlugin().translateMessage("commands.landid.success",
-				"id", land.getId(),
-				"owner", land.isOwned() ? land.getOwner() : "无"
+		MoneySLandClearEvent event = new MoneySLandClearEvent(land);
+		Server.getInstance().getPluginManager().callEvent(event);
+		if (event.isCancelled()) {
+			sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.failed"));
+			return true;
+		}
+		Server.getInstance().getScheduler().scheduleAsyncTask(MoneySLand.getInstance(), new SLandRegenerateTask(land));
+		sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.success",
+				"id", args[0]
 		));
 		return true;
 	}

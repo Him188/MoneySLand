@@ -30,7 +30,7 @@ public class IdleLandCommand extends SLandCommand implements CommandExecutor {
 		this.setDescription(owner.translateMessage("commands.idleland.description"));
 		this.setCommandParameters(new HashMap<String, CommandParameter[]>() {
 			{
-				put("1", new CommandParameter[]{
+				put("1arg", new CommandParameter[]{
 						new CommandParameter("level", CommandParameter.ARG_TYPE_RAW_TEXT, true),
 				});
 			}

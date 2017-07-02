@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * SLand 世界生成器
  *
- * @author Him188 @ MoneySLand Project
+ * @author Him188 @ MamoeTech
  */
 public class SLandGenerator extends Generator {
 	public SLandGenerator() {
@@ -64,18 +64,18 @@ public class SLandGenerator extends Generator {
 
 	private static final Block AIR = Block.get(Block.AIR);
 
-	private static final int DEFAULT_AISLE_WIDTH = 2;
-	private static final int DEFAULT_FRAME_WIDTH = 1;
+	public static final int DEFAULT_AISLE_WIDTH = 2;
+	public static final int DEFAULT_FRAME_WIDTH = 1;
 
-	private static final Block DEFAULT_FILL_BLOCK = Block.get(Block.DIRT);
-	private static final Block DEFAULT_LAST_BLOCK = Block.get(Block.BEDROCK);
-	private static final Block DEFAULT_AISLE_BLOCK = Block.get(Block.PLANK, 2);
-	private static final Block DEFAULT_FRAME_BLOCK = Block.get(Block.DOUBLE_STONE_SLAB);
-	private static final Block DEFAULT_GROUND_BLOCK = Block.get(Block.GRASS);
+	public static final Block DEFAULT_FILL_BLOCK = Block.get(Block.DIRT);
+	public static final Block DEFAULT_LAST_BLOCK = Block.get(Block.BEDROCK);
+	public static final Block DEFAULT_AISLE_BLOCK = Block.get(Block.PLANK, 2);
+	public static final Block DEFAULT_FRAME_BLOCK = Block.get(Block.DOUBLE_STONE_SLAB);
+	public static final Block DEFAULT_GROUND_BLOCK = Block.get(Block.GRASS);
 	//顶层半砖
-	private static final Block DEFAULT_FRAME_TOP_BLOCK = Block.get(Block.SLAB);
+	public static final Block DEFAULT_FRAME_TOP_BLOCK = Block.get(Block.SLAB);
 
-	private static final Block DEFAULT_SHOP_BLOCK = Block.get(Block.NETHERRACK);
+	public static final Block DEFAULT_SHOP_BLOCK = Block.get(Block.NETHERRACK);
 
 	protected int totalWidth;
 
@@ -257,22 +257,9 @@ public class SLandGenerator extends Generator {
 
 		int x, z, y; // TODO: 2017/5/16 主动放置方块而不是被动判断范围
 		for (int _x = 0; _x < 16; _x++) { //16 不能用 totalWidth 替换, 因为 chunk 的大小只有 16
-			x = (_x + realChunkX) % totalWidth;
 			for (int _z = 0; _z < 16; _z++) {
-				z = (_z + realChunkZ) % totalWidth;
 				for (int _y = 0; _y < this.groundHeight; _y++) {
-
-					if (this.aisleBlockLeft.inRange(x) || this.aisleBlockLeft.inRange(z) ||
-					    this.aisleBlockRight.inRange(x) || this.aisleBlockRight.inRange(z)) {
-						this.aisleBlockLeft.placeBlock(chunk, _x, _y + 1, _z);
-					} else if (this.frameBlockLeft.inRange(x) || this.frameBlockLeft.inRange(z) ||
-					           this.frameBlockRight.inRange(x) || this.frameBlockRight.inRange(z)) {
-						this.frameBlockLeft.placeBlock(chunk, _x, _y, _z);
-						this.frameTopBlock.placeBlock(chunk, _x, this.groundHeight + 1, _z);
-					} else {
-						this.groundWidth.placeBlock(chunk, _x, _y + 1, _z);
-					}
-					this.lastBlockCreate.placeBlock(chunk, _x, 0, _z);
+					this.generate(chunk, chunkX, chunkZ, realChunkX, realChunkZ, _x, _y, _z);
 				}
 			}
 		}
@@ -288,29 +275,83 @@ public class SLandGenerator extends Generator {
 		int realChunkX = chunkX * 16;
 		int realChunkZ = chunkZ * 16;
 
-		int id = (realChunkX % totalWidth) >> 4 | (realChunkZ % totalWidth);
-
 		int x, z, y; // TODO: 2017/5/16 主动放置方块而不是被动判断范围
 
 		for (int _x = 0; _x < 16; _x++) { //16 不能用 totalWidth 替换, 因为 chunk 的大小只有 16
-			x = (_x + realChunkX) % totalWidth;
 			for (int _z = 0; _z < 16; _z++) {
-				z = (_z + realChunkZ) % totalWidth;
-				label:
 				for (int _y = 0; _y < this.groundHeight; _y++) {
-					if (this.frameBlockLeft.inRange(x) && this.frameBlockLeft.inRange(z)) {
-						//领地方块
-						this.shopPlacer.placeBlock(chunk, _x, this.groundHeight + 2, _z);
-						int minX, minZ;
-						minX = realChunkX + _x;
-						minZ = realChunkZ + _z;
-						if (MoneySLand.getInstance().getLand(new Position(minX, 0, minZ, chunk.getProvider().getLevel())) !=
-						    null) {
-							continue label;
-						}
+					if (!this.populate(chunk, chunkX, chunkZ, realChunkX, realChunkZ, _x, _y, _z, true)) {
+						continue;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Generate land. This method will only generate position in <code>x</code>, <code>y</code> and <code>z</code> instead of whole chunk!
+	 *
+	 * @param chunk      chunk
+	 * @param _x         in range 0-15
+	 * @param _y         in range 0-255
+	 * @param _z         in range 0-15
+	 * @param chunkX     chunk x
+	 * @param chunkZ     chunk z
+	 * @param realChunkX real chunk x in level (actually chunkX * 16)
+	 * @param realChunkZ real chunk z in level (actually chunkZ * 16)
+	 */
+	public void generate(FullChunk chunk, int chunkX, int chunkZ, int realChunkX, int realChunkZ, int _x, int _y, int _z) {
+		int x = (_x + realChunkX) % totalWidth;
+		int z = (_z + realChunkZ) % totalWidth;
+		if (this.aisleBlockLeft.inRange(x) || this.aisleBlockLeft.inRange(z) ||
+		    this.aisleBlockRight.inRange(x) || this.aisleBlockRight.inRange(z)) {
+			this.aisleBlockLeft.placeBlock(chunk, _x, _y + 1, _z);
+		} else if (this.frameBlockLeft.inRange(x) || this.frameBlockLeft.inRange(z) ||
+		           this.frameBlockRight.inRange(x) || this.frameBlockRight.inRange(z)) {
+			this.frameBlockLeft.placeBlock(chunk, _x, _y, _z);
+			this.frameTopBlock.placeBlock(chunk, _x, this.groundHeight + 1, _z);
+		} else {
+			this.groundWidth.placeBlock(chunk, _x, _y + 1, _z);
+		}
+		this.lastBlockCreate.placeBlock(chunk, _x, 0, _z);
+	}
+
+	/**
+	 * Populate land. This method will only populate position in <code>x</code>, <code>y</code> and <code>z</code> instead of whole chunk!
+	 *
+	 * @param chunk          chunk
+	 * @param _x             in range 0-15
+	 * @param _y             in range 0-255
+	 * @param _z             in range 0-15
+	 * @param chunkX         chunk x
+	 * @param chunkZ         chunk z
+	 * @param realChunkX     real chunk x in level (actually chunkX * 16)
+	 * @param realChunkZ     real chunk z in level (actually chunkZ * 16)
+	 * @param constructSLand if TRUE, this method will not check if there is already a land generated, and will not create land instance.
+	 *
+	 * @return TRUE on success, FALSE on there is already a land(when <code>repopulate</code> is not TRUE)
+	 */
+	public boolean populate(FullChunk chunk, int chunkX, int chunkZ, int realChunkX, int realChunkZ, int _x, int _y, int _z, boolean
+			constructSLand) {
+		int x = (_x + realChunkX) % totalWidth;
+		int z = (_z + realChunkZ) % totalWidth;
+		if (this.frameBlockLeft.inRange(x) && this.frameBlockLeft.inRange(z)) {
+			//领地方块
+			this.shopPlacer.placeBlock(chunk, _x, this.groundHeight + 2, _z);
+			if (!constructSLand) {
+				return true;
+			}
+
+			int minX, minZ;
+			minX = realChunkX + _x;
+			minZ = realChunkZ + _z;
+			if (MoneySLand.getInstance().getLand(new Position(minX, 0, minZ, chunk.getProvider().getLevel())) !=
+			    null) {
+				return false;
+			}
 						/*
-						              z
-						              ↑
+						               z
+						               ↑
 						             5 *
 						             4 *
 						             3 * z+
@@ -323,30 +364,20 @@ public class SLandGenerator extends Generator {
 						               *
 						               *
 						 */
-						SLand land = SLand.newInitialLand(
-								MoneySLand.getInstance().getLandPool().nextLandId(),
-								new Range(minX, minX + (x < 0 ? -1 : 1) * this.groundWidth.getRealLength()),
-								new Range(minZ, minZ + (x < 0 ? -1 : 1) * this.groundWidth.getRealLength()),
-								chunk.getProvider().getLevel().getFolderName(), //only can be used in populateChunk
-								new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ)
-						);
+			SLand land = SLand.newInitialLand(
+					MoneySLand.getInstance().getLandPool().nextLandId(),
+					new Range(minX, minX + (x < 0 ? -1 : 1) * this.groundWidth.getRealLength()),
+					new Range(minZ, minZ + (x < 0 ? -1 : 1) * this.groundWidth.getRealLength()),
+					chunk.getProvider().getLevel().getFolderName(), //only can be used in populateChunk
+					new Vector3(_x + realChunkX, this.groundHeight + 2, _z + realChunkZ)
+			);
 
-						MoneySLand.getInstance().getLandPool().add(land);
-						MoneySLand.getInstance().getModifiedLandPool().add(land);
-						MoneySLand.getInstance().getLogger().debug("SLand #" + land.getId() + " in " + chunk.getProvider().getLevel().getFolderName() + " generated");
-					}
-				}
-			}
+			MoneySLand.getInstance().getLandPool().add(land);
+			MoneySLand.getInstance().getModifiedLandPool().add(land);
+			MoneySLand.getInstance().getLogger().debug("SLand #" + land.getId() + " in " + chunk.getProvider().getLevel().getFolderName() + " generated");
 		}
-	}
 
-	/**
-	 * @param chunk chunk
-	 * @param x     in range 0-15
-	 * @param z     in range 0-15
-	 */
-	public void generate(FullChunk chunk, int x, int z) {
-
+		return true;
 	}
 
 	/*

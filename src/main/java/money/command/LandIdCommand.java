@@ -46,7 +46,7 @@ public class LandIdCommand extends SLandCommand implements CommandExecutor {
 
 		SLand land = this.getPlugin().getLand((Position) sender);
 		if (land == null) {
-			sender.sendMessage(this.getPlugin().translateMessage("commands.landid.failed"));
+			sender.sendMessage(this.getPlugin().translateMessage("commands.landid.not-found"));
 			return true;
 		}
 

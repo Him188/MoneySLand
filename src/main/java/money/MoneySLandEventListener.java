@@ -13,7 +13,8 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Position;
 import money.generator.SLandGenerator;
 import money.sland.SLand;
-import money.utils.PermissionType;
+import money.utils.LevelPermissionType;
+import money.utils.SLandPermissionType;
 import money.utils.SLandUtils;
 import money.utils.StringAligner;
 
@@ -61,9 +62,9 @@ public final class MoneySLandEventListener implements Listener {
 		}
 		try {
 			if (isAction(METHOD.invoke(event))
-			    && !this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.TOUCH)) {
+			    && !this.testPermission(event.getPlayer(), event.getBlock(), SLandPermissionType.TOUCH)) {
 				event.setCancelled();
-				event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
+				event.getPlayer().sendMessage(this.plugin.translateMessage("event.no-permission"));
 			}
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
@@ -84,24 +85,28 @@ public final class MoneySLandEventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void permissionChecker(BlockBreakEvent event) {
-		if (!this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.BREAK)) {
+		if (!this.testPermission(event.getPlayer(), event.getBlock(), SLandPermissionType.BREAK)) {
 			event.setCancelled();
-			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
+			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no-permission"));
 		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void permissionChecker(BlockPlaceEvent event) {
-		if (!this.testPermission(event.getPlayer(), event.getBlock(), PermissionType.PLACE)) {
+		if (!this.testPermission(event.getPlayer(), event.getBlock(), SLandPermissionType.PLACE)) {
 			event.setCancelled();
-			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no.permission"));
+			event.getPlayer().sendMessage(this.plugin.translateMessage("event.no-permission"));
 		}
 	}
 
-	private boolean testPermission(Player player, Position position, PermissionType type) {
-		return !SLandUtils.arrayContains(SLandGenerator.GENERATOR_NAMES, position.level.getProvider().getGenerator())
-		       || player.hasPermission(type.getPermission())
-		       || Optional.ofNullable(this.plugin.getLand(position)).map((land) -> land.testPermission(player, type)).orElse(false);
+	private boolean testPermission(Player player, Position position, SLandPermissionType type) {
+		return ! /* land level */ SLandUtils.arrayContains(SLandGenerator.GENERATOR_NAMES, position.level.getProvider().getGenerator())
+		       || /* money.permission.sland.modify.* base permission*/ player.hasPermission(type.getPermission())
+		       || /* owner and invitees */ Optional.ofNullable(this.plugin.getLand(position)).map(land -> land.testPermission(player, type)).orElse(false)
+		       || /* shop block */ Optional.ofNullable(this.plugin.getLand(position)).map(land -> land.getShopBlock().equals(position.floor()) && LevelPermissionType.BREAK_SHOP.testPermission(player, land.getLevelInstance())).orElse(false)
+		       || /* frame block */ Optional.ofNullable(this.plugin.getLand(position)).map(land -> land.isFrame(position) && LevelPermissionType.BREAK_FRAME.testPermission(player, land.getLevelInstance())).orElse(false)
+		       || /* aisle block */ Optional.of(LevelPermissionType.BREAK_AISLE.testPermission(player, position.getLevel())).orElse(false)
+				;
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -130,7 +135,7 @@ public final class MoneySLandEventListener implements Listener {
 		switch (id) {
 			case Item.AIR:
 				if (!player.hasPermission("money.permission.sland.buy")) {
-					player.sendMessage(this.plugin.translateMessage("event.no.permission"));
+					player.sendMessage(this.plugin.translateMessage("event.no-permission"));
 					return;
 				}
 
