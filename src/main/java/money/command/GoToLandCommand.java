@@ -7,6 +7,7 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParameter;
 import money.MoneySLand;
 import money.sland.SLand;
+import money.utils.SLandPermissions;
 
 import java.util.HashMap;
 
@@ -18,8 +19,8 @@ public class GoToLandCommand extends SLandCommand implements CommandExecutor {
 		super(name, owner);
 
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.gotoland"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_GOTOLAND
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.gotoland.usage"));

@@ -8,6 +8,7 @@ import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Position;
 import money.MoneySLand;
 import money.sland.SLand;
+import money.utils.SLandPermissions;
 import money.utils.SLandUtils;
 
 import java.util.HashMap;
@@ -21,14 +22,14 @@ public class LandInviteeCommand extends SLandCommand implements CommandExecutor 
 		super(name, owner);
 
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.landinvitee;" +
-				"money.command.sland.landinvitee.list;" +
-				"money.command.sland.landinvitee.list.others;" +
-				"money.command.sland.landinvitee.add;" +
-				"money.command.sland.landinvitee.add.others;" +
-				"money.command.sland.landinvitee.remove;" +
-				"money.command.sland.landinvitee.remove.others"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_LANDINVITEE + ";" +
+				SLandPermissions.COMMAND_LANDINVITEE_LIST + ";" +
+				SLandPermissions.COMMAND_LANDINVITEE_LIST_OTHERS + ";" +
+				SLandPermissions.COMMAND_LANDINVITEE_ADD + ";" +
+				SLandPermissions.COMMAND_LANDINVITEE_ADD_OTHERS + ";" +
+				SLandPermissions.COMMAND_LANDINVITEE_REMOVE + ";" +
+				SLandPermissions.COMMAND_LANDINVITEE_REMOVE_OTHERS
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.landinvitee.usage"));
@@ -91,12 +92,12 @@ public class LandInviteeCommand extends SLandCommand implements CommandExecutor 
 		}
 
 		if (args[0].equals("list")) {
-			if (!sender.hasPermission("money.command.sland.lanvinvitee.list")) {
+			if (!sender.hasPermission(SLandPermissions.COMMAND_LANDINVITEE_LIST)) {
 				sender.sendMessage(this.getPlugin().translateMessage("commands.landinvitee.list.no-permission"));
 				return true;
 			}
 
-			if (!land.getOwner().equalsIgnoreCase(sender.getName()) && !sender.hasPermission("money.command.sland.lanvinvitee.list.others")) {
+			if (!land.getOwner().equalsIgnoreCase(sender.getName()) && !sender.hasPermission(SLandPermissions.COMMAND_LANDINVITEE_LIST_OTHERS)) {
 				sender.sendMessage(this.getPlugin().translateMessage("commands.landinvitee.list.others.no-permission"));
 				return true;
 			}
@@ -122,12 +123,12 @@ public class LandInviteeCommand extends SLandCommand implements CommandExecutor 
 		String name = SLandUtils.arrayMerge(args, 2, args.length - 2);
 		switch (args[0]) {
 			case "add":
-				if (!sender.hasPermission("money.command.sland.lanvinvitee.add")) {
+				if (!sender.hasPermission(SLandPermissions.COMMAND_LANDINVITEE_ADD)) {
 					sender.sendMessage(this.getPlugin().translateMessage("commands.landinvitee.add.no-permission"));
 					return true;
 				}
 
-				if (!land.getOwner().equalsIgnoreCase(sender.getName()) && !sender.hasPermission("money.command.sland.lanvinvitee.add.others")) {
+				if (!land.getOwner().equalsIgnoreCase(sender.getName()) && !sender.hasPermission(SLandPermissions.COMMAND_LANDINVITEE_ADD_OTHERS)) {
 					sender.sendMessage(this.getPlugin().translateMessage("commands.landinvitee.add.others.no-permission"));
 					return true;
 				}
@@ -140,12 +141,12 @@ public class LandInviteeCommand extends SLandCommand implements CommandExecutor 
 				sender.sendMessage(this.getPlugin().translateMessage("commands.landinvitee.add.failed"));
 				return true;
 			case "remove":
-				if (!sender.hasPermission("money.command.sland.lanvinvitee.remove")) {
+				if (!sender.hasPermission(SLandPermissions.COMMAND_LANDINVITEE_REMOVE)) {
 					sender.sendMessage(this.getPlugin().translateMessage("commands.landinvitee.remove.no-permission"));
 					return true;
 				}
 
-				if (!land.getOwner().equalsIgnoreCase(sender.getName()) && !sender.hasPermission("money.command.sland.lanvinvitee.remove.others")) {
+				if (!land.getOwner().equalsIgnoreCase(sender.getName()) && !sender.hasPermission(SLandPermissions.COMMAND_LANDINVITEE_REMOVE_OTHERS)) {
 					sender.sendMessage(this.getPlugin().translateMessage("commands.landinvitee.remove.others.no-permission"));
 					return true;
 				}

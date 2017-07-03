@@ -9,6 +9,7 @@ import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Level;
 import money.MoneySLand;
 import money.sland.SLand;
+import money.utils.SLandPermissions;
 
 import java.util.HashMap;
 import java.util.stream.Stream;
@@ -20,10 +21,9 @@ public class IdleLandCommand extends SLandCommand implements CommandExecutor {
 	public IdleLandCommand(String name, MoneySLand owner) {
 		super(name, owner);
 
-
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.idleland"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_IDLELAND
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.idleland.usage"));

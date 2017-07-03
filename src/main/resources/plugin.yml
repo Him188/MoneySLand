@@ -10,16 +10,15 @@ depend:
 - Money
 
 description: "地皮"
-
 # TODO 2017/07/03 支持配置文件修改权限
 permissions:
   money.permission.sland:
-    default: op
+    default: false
     description: "Allows op to do something about MoneySLand"
     children:
       money.permission.sland.modify:
-        default: op
-        description: "Allows op to modify the land though he wasn't invited from the land"
+        default: false
+        description: "Allows nobody to modify the land though he wasn't invited from the land"
         children:
           money.permission.sland.modify.place:
             default: op
@@ -30,6 +29,15 @@ permissions:
           money.permission.sland.modify.interact:
             default: op
             description: "Allows op to interact blocks on the land through he wasn't invited from the land"
+      money.permission.sland.breakshop:
+        default: false
+        description: "Allows nobody to break shop block(which is used to buy the land)"
+      money.permission.sland.interactaisle:
+        default: false
+        description: "Allows nobody to break aisle block"
+      money.permission.sland.breakframe:
+        default: false
+        description: "Allows nobody to break frame block"
       money.permission.sland.buy:
         default: true
         description: "Allows everyone to buy the land"
@@ -76,21 +84,21 @@ permissions:
         children:
            money.command.sland.landinvitee.add:
              default: true
-             description: "Allows op to run LandInviteeAdd command"
+             description: "Allows players to run LandInviteeAdd command"
              children:
                 money.command.sland.landinvitee.add.others:
                   default: op
                   description: "Allows op to run LandInviteeAddOthers command"
            money.command.sland.landinvitee.remove:
              default: true
-             description: "Allows op to run LandInviteeRemove command"
+             description: "Allows players to run LandInviteeRemove command"
              children:
                 money.command.sland.landinvitee.remove.others:
                   default: op
                   description: "Allows op to run LandInviteeRemoveOthers command"
            money.command.sland.landinvitee.list:
              default: true
-             description: "Allows op to run LandInviteeList command"
+             description: "Allows players to run LandInviteeList command"
              children:
                 money.command.sland.landinvitee.list.others:
                   default: op

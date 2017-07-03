@@ -12,6 +12,7 @@ import money.MoneySLand;
 import money.event.MoneySLandOwnerChangeEvent;
 import money.sland.SLand;
 import money.tasks.SLandRegenerateTask;
+import money.utils.SLandPermissions;
 
 import java.util.HashMap;
 
@@ -23,9 +24,9 @@ public class SellLandCommand extends SLandCommand implements CommandExecutor {
 		super(name, owner);
 
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.sellland;" +
-				"money.command.sland.sellland.others"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_SELLLAND + ";" +
+				SLandPermissions.COMMAND_SELLLAND_OTHERS
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.sellland.usage"));

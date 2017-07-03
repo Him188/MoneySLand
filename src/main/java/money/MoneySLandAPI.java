@@ -9,7 +9,6 @@ import money.sland.SLandPool;
  * API
  *
  * @author Him188 @ MoneySLand Project
- * @since MoneySLand 1.0.0
  */
 public interface MoneySLandAPI {
 	static MoneySLandAPI getInstance() {

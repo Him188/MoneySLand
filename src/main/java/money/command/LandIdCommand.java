@@ -8,6 +8,7 @@ import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Position;
 import money.MoneySLand;
 import money.sland.SLand;
+import money.utils.SLandPermissions;
 
 import java.util.HashMap;
 
@@ -19,8 +20,8 @@ public class LandIdCommand extends SLandCommand implements CommandExecutor {
 		super(name, owner);
 
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.landid"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_LANDID
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.landid.usage"));

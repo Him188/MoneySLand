@@ -11,6 +11,7 @@ import money.MoneySLand;
 import money.event.MoneySLandClearEvent;
 import money.sland.SLand;
 import money.tasks.SLandRegenerateTask;
+import money.utils.SLandPermissions;
 
 import java.util.HashMap;
 
@@ -22,9 +23,9 @@ public class ClearLandCommand extends SLandCommand implements CommandExecutor {
 		super(name, owner);
 
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.clearland;" +
-				"money.command.sland.clearland.others"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_CLEARLAND + ";" +
+				SLandPermissions.COMMAND_CLEARLAND_OTHERS
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.clearland.usage"));
@@ -73,6 +74,11 @@ public class ClearLandCommand extends SLandCommand implements CommandExecutor {
 					sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.id-invalid",
 							"id", args[0]
 					));
+					return true;
+				}
+
+				if (!sender.getName().equalsIgnoreCase(land.getOwner()) && sender.hasPermission(SLandPermissions.COMMAND_CLEARLAND_OTHERS)) {
+					sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.no-permission"));
 					return true;
 				}
 				break;

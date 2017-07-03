@@ -7,6 +7,7 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParameter;
 import money.MoneySLand;
 import money.sland.SLand;
+import money.utils.SLandPermissions;
 import money.utils.SLandUtils;
 
 import java.util.HashMap;
@@ -19,9 +20,9 @@ public class MyLandCommand extends SLandCommand implements CommandExecutor {
 		super(name, owner);
 
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.myland;" +
-				"money.command.sland.myland.others"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_MYLAND + ";" +
+				SLandPermissions.COMMAND_MYLAND_OTHERS
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.myland.usage"));
@@ -53,7 +54,7 @@ public class MyLandCommand extends SLandCommand implements CommandExecutor {
 				break;
 			case 1:
 				name = SLandUtils.arrayMerge(args, 1, args.length - 1);
-				if (!name.equalsIgnoreCase(sender.getName()) && !sender.hasPermission("money.command.sland.myland.others")) {
+				if (!name.equalsIgnoreCase(sender.getName()) && !sender.hasPermission(SLandPermissions.COMMAND_MYLAND_OTHERS)) {
 					sender.sendMessage(this.getPlugin().translateMessage("commands.myland.no-permission"));
 					return true;
 				}

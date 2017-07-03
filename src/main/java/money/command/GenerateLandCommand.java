@@ -7,6 +7,7 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParameter;
 import money.MoneySLand;
 import money.generator.SLandGenerator;
+import money.utils.SLandPermissions;
 import money.utils.SLandUtils;
 
 import java.util.HashMap;
@@ -20,8 +21,8 @@ public class GenerateLandCommand extends SLandCommand implements CommandExecutor
 		super(name, owner);
 
 		this.setPermission(
-				"money.command.sland;" +
-				"money.command.sland.generateland"
+				SLandPermissions.COMMAND_BASE + ";" +
+				SLandPermissions.COMMAND_GENERATELAND
 		);
 		this.setExecutor(this);
 		this.setUsage(owner.translateMessage("commands.generateland.usage"));

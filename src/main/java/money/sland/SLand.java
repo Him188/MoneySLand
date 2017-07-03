@@ -14,8 +14,8 @@ import money.CurrencyType;
 import money.MoneySLand;
 import money.event.MoneySLandInviteeChangeEvent;
 import money.generator.SLandGenerator;
+import money.utils.ActionType;
 import money.utils.Range;
-import money.utils.SLandPermissionType;
 import money.utils.SLandUtils;
 
 import java.util.*;
@@ -103,7 +103,7 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 		this.invitees = new LinkedHashSet<>(invitees);
 		this.time = time;
 		this.level = level;
-		this.shopBlock = shopBlock;
+		this.shopBlock = shopBlock.floor();
 	}
 
 	public int getId() {
@@ -312,11 +312,10 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 	 *
 	 * @return TRUE on {@code player} can modify this land, otherwise FALSE
 	 */
-	public boolean testPermission(Player player, SLandPermissionType type) {
-		return (getOwner() != null && getOwner().equalsIgnoreCase(player.getName()))
-		       || this.isInvited(player.getName())
-		       || player.hasPermission("money.permission.sland." + type.stringValue())
-		       || player.hasPermission("money.permission.sland." + type.stringValue() + "." + this.getId());
+	public boolean testPermission(Player player, ActionType type) {
+		return /* Owner */ (getOwner() != null && getOwner().equalsIgnoreCase(player.getName()))
+		                   || /* invitee */ this.isInvited(player.getName())
+		                   || /* action permission */ type.testPermission(player, this);
 	}
 
 	private static final Block AIR = new BlockAir();
