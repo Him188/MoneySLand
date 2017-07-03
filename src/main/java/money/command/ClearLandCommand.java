@@ -86,9 +86,9 @@ public class ClearLandCommand extends SLandCommand implements CommandExecutor {
 			sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.failed"));
 			return true;
 		}
-		Server.getInstance().getScheduler().scheduleAsyncTask(MoneySLand.getInstance(), new SLandRegenerateTask(land));
+		Server.getInstance().getScheduler().scheduleAsyncTask(MoneySLand.getInstance(), new SLandRegenerateTask(land, (Player) sender));
 		sender.sendMessage(this.getPlugin().translateMessage("commands.clearland.success",
-				"id", args[0]
+				"id", land.getId()
 		));
 		return true;
 	}

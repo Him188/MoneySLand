@@ -88,10 +88,18 @@ public class SellLandCommand extends SLandCommand implements CommandExecutor {
 			return true;
 		}
 		land.setOwner(event.getNewOwner());
+		for (String s : land.getInvitees()) {
+			if (!land.removeInvitee(s)) {
+				sender.sendMessage(this.getPlugin().translateMessage("commands.sellland.failed"));
+				return true;
+			}
+		}
 		Money.getInstance().addMoney(sender.getName(), land.getSellingPrice(), land.getCurrencyType());
-		Server.getInstance().getScheduler().scheduleAsyncTask(MoneySLand.getInstance(), new SLandRegenerateTask(land, true));
+		Server.getInstance().getScheduler().scheduleAsyncTask(MoneySLand.getInstance(), new SLandRegenerateTask(land, null, true));
 		sender.sendMessage(this.getPlugin().translateMessage("commands.sellland.success",
-				"id", args[0]
+				"id", land.getId(),
+				"amount", land.getSellingPrice(),
+				"type", land.getCurrencyType()
 		));
 		return true;
 	}

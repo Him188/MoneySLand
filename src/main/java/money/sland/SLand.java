@@ -159,8 +159,8 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 	 */
 	public boolean inRange(Position position) {
 		return position.getLevel().getFolderName().equalsIgnoreCase(level)
-		       && x.realInRange(position.getFloorX())
-		       && z.realInRange(position.getFloorZ());
+		       && x.realInRangeIncludingFrame(position.getFloorX())
+		       && z.realInRangeIncludingFrame(position.getFloorZ());
 	}
 
 	/**
@@ -213,24 +213,23 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 		return owner;
 	}
 
-	public boolean setOwner(Player owner) {
-		return setOwner(owner.getName());
-	}
-
 	/**
 	 * Sets the owner's name
 	 *
 	 * @param owner the owner's name
-	 *
-	 * @return TRUE always
 	 */
-	public boolean setOwner(String owner) {
-		//if (this.isOwned()) {
-		//	return false;
-		//}
-		this.owner = owner;
-		MoneySLand.getInstance().getModifiedLandPool().add(this);
-		return true;
+	public void setOwner(String owner) {
+		if (!Objects.equals(this.owner, owner)) {
+			this.owner = owner == null || owner.isEmpty() ? null : owner;
+			MoneySLand.getInstance().getModifiedLandPool().add(this);
+		}
+	}
+
+	public void setOwner(Player owner) {
+		if (owner == null)
+			setOwner("");
+		else
+			setOwner(owner.getName());
 	}
 
 	/**
@@ -314,7 +313,7 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 	 * @return TRUE on {@code player} can modify this land, otherwise FALSE
 	 */
 	public boolean testPermission(Player player, SLandPermissionType type) {
-		return getOwner().equalsIgnoreCase(player.getName())
+		return (getOwner() != null && getOwner().equalsIgnoreCase(player.getName()))
 		       || this.isInvited(player.getName())
 		       || player.hasPermission("money.permission.sland." + type.stringValue())
 		       || player.hasPermission("money.permission.sland." + type.stringValue() + "." + this.getId());
@@ -331,7 +330,7 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 		synchronized (regeneratorLock) {
 			this.getX().forEach(x -> this.getZ().forEach(z -> {
 				for (int y = 0; y < 0xff; y++) {
-					this.getLevelInstance().setBlock(new Vector3(x, y, z), AIR);
+					this.getLevelInstance().setBlock(new Vector3(x, y, z), AIR, false, false);
 				}
 			}));
 		}
@@ -350,7 +349,7 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 				int chunkZ = z >> 4;
 				FullChunk chunk = this.getLevelInstance().getChunk(chunkX, chunkZ);
 				for (int y = 0; y < groundHeight; y++) {
-					generator.generate(chunk, chunkX, chunkZ, chunkX * 16, chunkZ * 16, x, y, z);
+					generator.generate(chunk, chunkX, chunkZ, chunkX * 16, chunkZ * 16, x - chunkX * 16, y, z - chunkZ * 16);
 				}
 			}));
 
@@ -360,7 +359,7 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 					int chunkZ = z >> 4;
 					FullChunk chunk = this.getLevelInstance().getChunk(chunkX, chunkZ);
 					for (int y = 0; y < groundHeight; y++) {
-						generator.populate(chunk, chunkX, chunkZ, chunkX * 16, chunkZ * 16, x, y, z, false);
+						generator.populate(chunk, chunkX, chunkZ, chunkX * 16, chunkZ * 16, x - chunkX * 16, y, z - chunkZ * 16, false);
 					}
 				}));
 			}

@@ -15,7 +15,7 @@ save-tiks: 1200
 # 填写 "" 禁用指令.
 # Command for generating a new land level
 # Sets "" to disable this command
-generate-command: "newland"
+generateland-command: "newland"
 
 # 生成地皮的指令
 # 填写 "" 禁用指令.
@@ -52,3 +52,9 @@ clearland-command: "clearland"
 # Command for querying lands which player owned
 # Sets "" to disable this command
 myland-command: "myland"
+
+# 分享地皮给其他玩家的指令
+# 填写 "" 禁用指令.
+# Command for sharing lands with other players
+# Sets "" to disable this command
+landinvitee-command: "landinvitee"

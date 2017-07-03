@@ -52,10 +52,14 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 
 	private static final Map<String, Class<? extends SLandCommand>> COMMAND_CLASSES = new HashMap<String, Class<? extends SLandCommand>>() {
 		{
-			put("generate", GenerateLandCommand.class);
+			put("generateland", GenerateLandCommand.class);
 			put("gotoland", GoToLandCommand.class);
 			put("idleland", IdleLandCommand.class);
 			put("landid", LandIdCommand.class);
+			put("myland", MyLandCommand.class);
+			put("clearland", ClearLandCommand.class);
+			put("sellland", SellLandCommand.class);
+			put("landinvitee", LandInviteeCommand.class);
 		}
 	};
 
@@ -232,16 +236,18 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 		if (language.get(message) == null) {
 			return message;
 		}
-
-		final String[] msg = {translateMessage(message)};
-		args.forEach((key, value) -> {
+		
+		String msg = translateMessage(message);
+		for (Map.Entry<String, Object> s : args.entrySet()) {
+			String key = s.getKey();
+			Object value = s.getValue();
 			if (value instanceof Double || value instanceof Float) {
-				msg[0] = msg[0].replace("$" + key + "$", String.valueOf(Math.round(Double.parseDouble(value.toString()))));
+				msg = msg.replace("$" + key + "$", String.valueOf(Math.round(Double.parseDouble(value.toString()))));
 			} else {
-				msg[0] = msg[0].replace("$" + key + "$", value.toString());
+				msg = msg.replace("$" + key + "$", value.toString());
 			}
-		});
-		return msg[0];
+		}
+		return msg;
 	}
 
 	public String translateMessage(String message, Object... keys_values) {
@@ -304,9 +310,7 @@ public final class MoneySLand extends PluginBase implements MoneySLandAPI {
 				return false;
 			}
 
-			if (!land.setOwner(player.getName())) {
-				return false;
-			}
+			land.setOwner(player.getName());
 
 			if (!Money.getInstance().reduceMoney(player, event.getPrice())) {
 				return false;

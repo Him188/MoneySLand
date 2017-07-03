@@ -11,7 +11,7 @@ depend:
 
 description: "地皮"
 
-
+# TODO 2017/07/03 支持配置文件修改权限
 permissions:
   money.permission.sland:
     default: op
@@ -49,11 +49,11 @@ permissions:
       money.command.sland.landid:
         default: true
         description: "Allows players to run LandId command"
-      money.command.sland.selland:
+      money.command.sland.sellland:
         default: true
         description: "Allows players to run SellLand command"
         children:
-           money.command.sland.selland.others:
+           money.command.sland.sellland.others:
              default: op
              description: "Allows op to run SellLandOthers command"
       money.command.sland.clearland:
@@ -70,3 +70,28 @@ permissions:
            money.command.sland.myland.others:
              default: op
              description: "Allows op to run MyLandOthers command"
+      money.command.sland.landinvitee:
+        default: op
+        description: "Allows players to run LandInvitee command"
+        children:
+           money.command.sland.landinvitee.add:
+             default: true
+             description: "Allows op to run LandInviteeAdd command"
+             children:
+                money.command.sland.landinvitee.add.others:
+                  default: op
+                  description: "Allows op to run LandInviteeAddOthers command"
+           money.command.sland.landinvitee.remove:
+             default: true
+             description: "Allows op to run LandInviteeRemove command"
+             children:
+                money.command.sland.landinvitee.remove.others:
+                  default: op
+                  description: "Allows op to run LandInviteeRemoveOthers command"
+           money.command.sland.landinvitee.list:
+             default: true
+             description: "Allows op to run LandInviteeList command"
+             children:
+                money.command.sland.landinvitee.list.others:
+                  default: op
+                  description: "Allows op to run LandInviteeListOthers command"

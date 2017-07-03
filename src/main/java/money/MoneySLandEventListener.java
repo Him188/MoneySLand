@@ -102,10 +102,10 @@ public final class MoneySLandEventListener implements Listener {
 	private boolean testPermission(Player player, Position position, SLandPermissionType type) {
 		return ! /* land level */ SLandUtils.arrayContains(SLandGenerator.GENERATOR_NAMES, position.level.getProvider().getGenerator())
 		       || /* money.permission.sland.modify.* base permission*/ player.hasPermission(type.getPermission())
-		       || /* owner and invitees */ Optional.ofNullable(this.plugin.getLand(position)).map(land -> land.testPermission(player, type)).orElse(false)
 		       || /* shop block */ Optional.ofNullable(this.plugin.getLand(position)).map(land -> land.getShopBlock().equals(position.floor()) && LevelPermissionType.BREAK_SHOP.testPermission(player, land.getLevelInstance())).orElse(false)
 		       || /* frame block */ Optional.ofNullable(this.plugin.getLand(position)).map(land -> land.isFrame(position) && LevelPermissionType.BREAK_FRAME.testPermission(player, land.getLevelInstance())).orElse(false)
 		       || /* aisle block */ Optional.of(LevelPermissionType.BREAK_AISLE.testPermission(player, position.getLevel())).orElse(false)
+		       || /* owner and invitees */ Optional.ofNullable(this.plugin.getLand(position)).map(land -> land.testPermission(player, type)).orElse(false)
 				;
 	}
 

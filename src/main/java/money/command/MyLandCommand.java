@@ -29,11 +29,7 @@ public class MyLandCommand extends SLandCommand implements CommandExecutor {
 		this.setCommandParameters(new HashMap<String, CommandParameter[]>() {
 			{
 				put("1arg", new CommandParameter[]{
-						new CommandParameter("player name", CommandParameter.ARG_TYPE_RAW_TEXT),
-				});
-
-				put("1arg_", new CommandParameter[]{
-						new CommandParameter("player", CommandParameter.ARG_TYPE_PLAYER),
+						new CommandParameter("player name", CommandParameter.ARG_TYPE_RAW_TEXT, true),
 				});
 			}
 		});
@@ -70,7 +66,7 @@ public class MyLandCommand extends SLandCommand implements CommandExecutor {
 		StringBuilder sb = new StringBuilder(this.getPlugin().translateMessage("commands.myland.list.head",
 				"count", lands.length,
 				"name", name
-		));
+		)).append("\n");
 
 		for (SLand land : lands) {
 			sb.append(this.getPlugin().translateMessage("commands.myland.list.content",
@@ -78,7 +74,7 @@ public class MyLandCommand extends SLandCommand implements CommandExecutor {
 					"owner", land.isOwned() ? land.getOwner() : "无",
 					"square", land.getSquare(),
 					"level", land.getLevel()
-			));
+			)).append("\n");
 		}
 
 		sender.sendMessage(sb.toString());

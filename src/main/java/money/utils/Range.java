@@ -36,7 +36,7 @@ public class Range {
 		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
 	}
 
-	public boolean realInRangeIncludingAisle(int number) {
+	public boolean realInRangeIncludingFrame(int number) {
 		return (number >= min && number <= max) || (number >= max && number <= min);
 		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
 	}
