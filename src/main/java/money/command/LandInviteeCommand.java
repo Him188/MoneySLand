@@ -9,7 +9,6 @@ import cn.nukkit.level.Position;
 import money.MoneySLand;
 import money.sland.SLand;
 import money.utils.SLandPermissions;
-import money.utils.SLandUtils;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -120,7 +119,7 @@ public class LandInviteeCommand extends SLandCommand implements CommandExecutor 
 		}
 
 		//  /landinvitee add 0 test
-		String name = SLandUtils.arrayMerge(args, 2, args.length - 2);
+		String name = args[2];
 		switch (args[0]) {
 			case "add":
 				if (!sender.hasPermission(SLandPermissions.COMMAND_LANDINVITEE_ADD)) {
