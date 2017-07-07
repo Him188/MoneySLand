@@ -55,10 +55,10 @@
 |   gotoland   | <id>                                            |            传送到任意ID的地皮             |                    money.command.sland.gotoland                    |
 |   idleland   | \[level\]                                       |          传送到一个未被购买的地皮          |                    money.command.sland.idleland                    |
 |    landid    |                                                 |           查看所在位置的地皮的ID           |                     money.command.sland.landid                     |
-|   sellland   | \[id\]                                          |        出售所在的地皮或指定ID的地皮         |  money.command.sland.sellland;money.command.sland.sellland.others  |
-|  clearland   | \[id\]                                          | 将所在的地皮或指定ID的地皮清空并还原到初始状态 | money.command.sland.clearland;money.command.sland.clearland.others |
-|    myland    | \[player\]                                      |       查看自己或他人已拥有的地皮列表        |    money.command.sland.myland;money.command.sland.myland.others    |
-| landinvitee  | list \[地皮ID\] 或 <add\|remove> <地皮ID> <玩家名> |         管理自己或他人的地皮分享者          |                         过多, 请在附表中查看                          |
+|   sellland   | \[id\]                                          |        出售所在的地皮或指定ID的地皮         |  money.command.sland.sellland;<br />money.command.sland.sellland.others  |
+|  clearland   | \[id\]                                          | 将所在的地皮或指定ID的地皮清空<br />并还原到初始状态 | money.command.sland.clearland;<br />money.command.sland.clearland.others |
+|    myland    | \[player\]                                      |       查看自己或他人已拥有的地皮列表        |    money.command.sland.myland;<br />money.command.sland.myland.others    |
+| landinvitee  | list \[地皮ID\] <br />或 <add\|remove> <地皮ID> <玩家名> |         管理自己或他人的地皮分享者          |                         过多, 请在附表中查看                          |
 
 附表:
 

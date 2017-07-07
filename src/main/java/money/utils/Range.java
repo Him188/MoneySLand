@@ -36,7 +36,7 @@ public class Range {
 		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
 	}
 
-	public boolean realInRangeIncludingFrame(int number) {
+	public boolean inRangeIncludingFrame(int number) {
 		return (number >= min && number <= max) || (number >= max && number <= min);
 		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
 	}
