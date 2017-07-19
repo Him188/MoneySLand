@@ -12,7 +12,10 @@ import money.MoneySLand;
 import money.sland.SLand;
 import money.utils.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * SLand 世界生成器
@@ -45,6 +48,8 @@ public class SLandGenerator extends Generator {
 
 	/**
 	 * unmodifiable
+	 *
+	 * @see Collections.UnmodifiableMap
 	 */
 	public static Map<String, Object> DEFAULT_SETTINGS;
 
@@ -56,7 +61,7 @@ public class SLandGenerator extends Generator {
 	}
 
 
-	public static int TYPE_LAND = 1004;
+	public static int TYPE_LAND = 2001;
 
 	private final Map<String, Object> options;
 
@@ -236,8 +241,6 @@ public class SLandGenerator extends Generator {
 	}
 
 
-	private Set<Integer> generatedLands = new HashSet<>();
-
 	@Override
 	public void generateChunk(int chunkX, int chunkZ) {
 		BaseFullChunk chunk = this.level.getChunk(chunkX, chunkZ);
@@ -303,11 +306,11 @@ public class SLandGenerator extends Generator {
 	public void generate(FullChunk chunk, int chunkX, int chunkZ, int realChunkX, int realChunkZ, int _x, int _y, int _z) {
 		int x = (_x + realChunkX) % totalWidth;
 		int z = (_z + realChunkZ) % totalWidth;
-		if (this.aisleBlockLeft.inRange(x) || this.aisleBlockLeft.inRange(z) ||
-		    this.aisleBlockRight.inRange(x) || this.aisleBlockRight.inRange(z)) {
+		if (this.aisleBlockLeft.inRange(x, true) || this.aisleBlockLeft.inRange(z, true) ||
+		    this.aisleBlockRight.inRange(x, true) || this.aisleBlockRight.inRange(z, true)) {
 			this.aisleBlockLeft.placeBlock(chunk, _x, _y + 1, _z);
-		} else if (this.frameBlockLeft.inRange(x) || this.frameBlockLeft.inRange(z) ||
-		           this.frameBlockRight.inRange(x) || this.frameBlockRight.inRange(z)) {
+		} else if (this.frameBlockLeft.inRange(x, true) || this.frameBlockLeft.inRange(z, true) ||
+		           this.frameBlockRight.inRange(x, true) || this.frameBlockRight.inRange(z, true)) {
 			this.frameBlockLeft.placeBlock(chunk, _x, _y, _z);
 			this.frameTopBlock.placeBlock(chunk, _x, this.groundHeight + 1, _z);
 		} else {
@@ -335,7 +338,7 @@ public class SLandGenerator extends Generator {
 			constructSLand) {
 		int x = (_x + realChunkX) % totalWidth;
 		int z = (_z + realChunkZ) % totalWidth;
-		if (this.frameBlockLeft.inRange(x) && this.frameBlockLeft.inRange(z)) {
+		if (this.frameBlockLeft.inRange(x, true) && this.frameBlockLeft.inRange(z, true)) {
 			//领地方块
 			this.shopPlacer.placeBlock(chunk, _x, this.groundHeight + 2, _z);
 			if (!constructSLand) {
@@ -345,8 +348,7 @@ public class SLandGenerator extends Generator {
 			int minX, minZ;
 			minX = realChunkX + _x;
 			minZ = realChunkZ + _z;
-			if (MoneySLand.getInstance().getLand(new Position(minX, 0, minZ, chunk.getProvider().getLevel())) !=
-			    null) {
+			if (MoneySLand.getInstance().getLand(new Position(minX, 0, minZ, chunk.getProvider().getLevel())) != null) {
 				return false;
 			}
 						/*
@@ -380,35 +382,6 @@ public class SLandGenerator extends Generator {
 		return true;
 	}
 
-	/*
-	@Override
-	public void populateChunk(int chunkX, int chunkZ) {
-		FullChunk chunk = this.level.getChunk(chunkX, chunkZ);
-		if (this.broken) {
-			return;
-		}
-
-
-		int realChunkX = chunkX * 16;
-		int realChunkZ = chunkZ * 16;
-
-		int baseX = realChunkX % totalWidth;
-		int baseZ = realChunkZ % totalWidth;
-
-		if (baseX == 0 || baseZ == 0) {
-			int minX = baseX + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength();
-			int maxX = minX + this.groundWidth.getLength();
-
-			int minZ = baseZ + this.aisleBlockLeft.getLength() + this.frameBlockLeft.getLength();
-			int maxZ = minZ + this.groundWidth.getLength();
-
-
-			//if (this.frameBlockLeft.inRange(Math.abs(minX))) {
-
-			//}
-		}
-	}
-	*/
 	@Override
 	public Map<String, Object> getSettings() {
 		return options;

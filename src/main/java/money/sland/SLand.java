@@ -159,8 +159,8 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 	 */
 	public boolean inRange(Position position) {
 		return position.getLevel().getFolderName().equalsIgnoreCase(level)
-		       && x.inRangeIncludingFrame(position.getFloorX())
-		       && z.inRangeIncludingFrame(position.getFloorZ());
+		       && x.inRangeIncludingFrame(position.getFloorX(), false)
+		       && z.inRangeIncludingFrame(position.getFloorZ(), false);
 	}
 
 	/**
@@ -200,8 +200,8 @@ public final class SLand { // TODO: 2017/7/2 javadoc
 	}
 
 	public boolean isFrame(Vector3 position) {
-		return ((this.getX().min == position.getFloorX() || this.getX().max == position.getFloorX()) && this.getZ().inRangeIncludingFrame(position.getFloorZ()))
-		       || ((this.getZ().min == position.getFloorZ() || this.getZ().max == position.getFloorZ()) && this.getX().inRangeIncludingFrame(position.getFloorX()));
+		return ((this.getX().min == position.getFloorX() || this.getX().max == position.getFloorX()) && this.getZ().inRangeIncludingFrame(position.getFloorZ(), false))
+		       || ((this.getZ().min == position.getFloorZ() || this.getZ().max == position.getFloorZ()) && this.getX().inRangeIncludingFrame(position.getFloorX(), false));
 	}
 
 	/**

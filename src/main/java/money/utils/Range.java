@@ -26,19 +26,14 @@ public class Range {
 	}
 
 	//用于 generateChunk, number可能为负数而 min 和 max 永远为正数
-	public boolean inRange(int number) {
+	public boolean inRange(int number, boolean checkAbsValue) {
 		return (number >= min && number < max) || (number >= max && number < min)
-		       || ((number = Math.abs(number)) >= min && number < max) || (number >= max && number < min);
+		       || (checkAbsValue && (((number = Math.abs(number)) >= min && number < max) || (number >= max && number < min)));
 	}
 
-	public boolean realInRange(int number) {
-		return (number > min && number < max) || (number > max && number < min);
-		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
-	}
-
-	public boolean inRangeIncludingFrame(int number) {
-		return (number >= min && number <= max) || (number >= max && number <= min);
-		//  || ((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min);
+	public boolean inRangeIncludingFrame(int number, boolean checkAbsValue) {
+		return (number >= min && number <= max) || (number >= max && number <= min)
+		       || (checkAbsValue && (((number = Math.abs(number)) >= min && number <= max) || (number >= max && number <= min)));
 	}
 
 	public int getLength() {

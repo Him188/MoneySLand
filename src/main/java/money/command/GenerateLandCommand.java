@@ -66,9 +66,9 @@ public class GenerateLandCommand extends SLandCommand implements CommandExecutor
 
 		if (Server.getInstance().generateLevel(args[0], new java.util.Random().nextLong(), SLandGenerator.class, settings)) {
 			sender.sendMessage(getPlugin().translateMessage(settingsName.isEmpty() ? "commands.generateland.success" : "commands.generateland.success.with.settings",
-					"level", args[0])
-			);
-		} else {
+                    "level", args[0]
+            ));
+        } else {
 			sender.sendMessage(getPlugin().translateMessage("commands.generateland.failed", "level", args[0]));
 		}
 

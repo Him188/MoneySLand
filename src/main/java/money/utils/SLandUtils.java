@@ -118,10 +118,10 @@ public final class SLandUtils {
 		return map;
 	}
 
-	public static String toPreset(Map<String, Object> options) {
-		StringBuilder stringBuilder = new StringBuilder();
-		options.forEach((key, value) -> {
-			if (key.equals("preset")) {
+    public static String toPreset(final Map<String, Object> options) {
+        StringBuilder stringBuilder = new StringBuilder();
+        new HashMap<>(options).forEach((key, value) -> {
+            if (key.equals("preset")) {
 				return;
 			}
 			stringBuilder.append(key);
