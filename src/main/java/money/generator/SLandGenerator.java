@@ -28,14 +28,14 @@ public class SLandGenerator extends Generator {
 	}
 
 	public SLandGenerator(Map<String, Object> options) {
-		Object obj;
-		if (options != null && (obj = options.get("preset")) != null && obj instanceof String) {
-			this.options = Optional.ofNullable(SLandUtils.fromPreset((String) obj)).filter(o -> !(o.size() == DEFAULT_SETTINGS.size() + 1)).orElse(new HashMap<>
-					(DEFAULT_SETTINGS));
-		} else {
-			this.options = Optional.ofNullable(options).filter(o -> !(o.size() == DEFAULT_SETTINGS.size() + 1)).orElse(new HashMap<>(DEFAULT_SETTINGS));
-			this.options.put("preset", SLandUtils.toPreset(this.options));
-		}
+        Object presetString;
+        if (options != null && (presetString = options.get("preset")) != null && presetString instanceof String) {
+            this.options = Optional.of(SLandUtils.fromPreset((String) presetString)).filter(o -> o.size() == DEFAULT_SETTINGS.size() + 1).orElse(new HashMap<>(DEFAULT_SETTINGS));
+        } else {
+            this.options = Optional.ofNullable(options).filter(o -> o.size() == DEFAULT_SETTINGS.size() + 1).orElse(new HashMap<>(DEFAULT_SETTINGS));
+            presetString = SLandUtils.toPreset(this.options);
+            this.options.put("preset", presetString);
+        }
 	}
 
 	public static final String[] GENERATOR_NAMES = {

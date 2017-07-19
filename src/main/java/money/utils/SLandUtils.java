@@ -102,8 +102,8 @@ public final class SLandUtils {
 		return false;
 	}
 
-	public static Map<String, Object> fromPreset(String preset) {
-		if (preset.isEmpty()) {
+    public static Map<String, Object> fromPreset(final String preset) {
+        if (preset.isEmpty()) {
 			return new HashMap<>();
 		}
 		Map<String, Object> map = new HashMap<>();
