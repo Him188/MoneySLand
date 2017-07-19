@@ -17,9 +17,9 @@ save-tiks: 1200
 # Sets "" to disable this command
 generateland-command: "newland"
 
-# 生成地皮的指令
+# 传送到地皮的指令
 # 填写 "" 禁用指令.
-# Command for go to a land which is owned by oneself
+# Command for going to a land which is owned by oneself
 # Sets "" to disable this command
 gotoland-command: "gotoland"
 
